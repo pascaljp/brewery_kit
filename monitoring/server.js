@@ -11,7 +11,6 @@ const fs = require('fs');
 const log4js = require('log4js');
 const os = require('os');
 const path = require('path');
-const isIpPrivate = require('private-ip');
 
 class Server {
   constructor() {

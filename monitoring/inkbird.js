@@ -16,7 +16,7 @@ log4js.configure({
   categories: {
     default: {appenders: ['out'], level: 'all'},
     ibs_th1: {appenders: ['out', 'err'], level: 'error'},
-    inkbird: {appenders: ['out', 'err'], level: 'info'},
+    inkbird: {appenders: ['out', 'err'], level: 'trace'},
     server: {appenders: ['out', 'err'], level: 'info'},
   },
 });
@@ -45,8 +45,8 @@ const createCallback = (machineId) => {
         data.address, data.date, data.temperature, data.humidity,
         data.probeType, data.battery);
     try {
-      //await Logger.notifyInkbirdApi(
-      //    machineId, data.address, data.temperature, data.humidity, data.battery);
+      await Logger.notifyInkbirdApi(
+          machineId, data.address, data.temperature, data.humidity, data.battery);
       watchdogId.refresh();
     } catch (e) {
       // TODO: Save to a file and send to the server later.

@@ -1,8 +1,9 @@
-// monitoring program uploads machineId to a server.
-// user accesses the server, and get an IP address of the monitoring program.
-// user accesses the monitoring program to get the machineID.
-// user sends the machineId to the server.
-// Now  server verifies the user has an access to the machine.
+// How to authenticate users:
+// 1. monitoring program uploads machineId to a server.
+// 2. user accesses the server, and get an IP address of the monitoring program.
+// 3. user accesses the monitoring program to get the machineID.
+// 4. user sends the machineId to the server.
+// 5. now the server knows the user has an access to the machine.
 
 const express = require('express');
 const fetch = require('node-fetch');

@@ -25,6 +25,7 @@ class Server {
     this.app_.get('/getMachineId', (req, res) => {
       res.header('Content-Type', 'application/json; charset=utf-8');
       res.header('Access-Control-Allow-Origin', 'https://brewery-app.com');
+      res.header('Access-Control-Allow-Origin', 'http://brewery-app.com');
       try {
         const machineId = this.getMachineId_();
         res.json({status: 'ok', machineId: machineId});

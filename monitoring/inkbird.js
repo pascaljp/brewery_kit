@@ -27,7 +27,7 @@ const watchdogId = setTimeout(() => {
   logger.error('Seems like inkbird process is not working properly.');
   logger.error('Rebooting the machine...');
   try {
-    const stdout = execSync('/usr/sbin/reboot');
+    const stdout = execSync('/sbin/reboot');
     logger.mark('Reboot command succeeded... Rebooting...');
     logger.mark(stdout);
     process.exit(1);

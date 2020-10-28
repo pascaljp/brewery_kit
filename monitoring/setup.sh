@@ -3,7 +3,10 @@
 # Enable Bluetooth.
 sudo apt install -y pi-bluetooth
 
-# Setup nodejs's noble library
+# Setup nodejs.
+sudo apt install -y npm
+
+# Setup nodejs's noble library.
 sudo apt install -y bluetooth bluez libbluetooth-dev libudev-dev
 npm install
 sudo npm install -g pm2

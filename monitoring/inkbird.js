@@ -21,6 +21,7 @@ log4js.configure({
   },
 });
 const logger = log4js.getLogger('inkbird');
+const notifier = new Logger();
 
 // Reboot the machine if there is no data in the past 5 minutes.
 const watchdogId = setTimeout(() => {
@@ -45,8 +46,8 @@ const createCallback = (machineId) => {
         data.address, data.date, data.temperature, data.humidity,
         data.probeType, data.battery);
     try {
-      await Logger.notifyInkbirdApi(
-          machineId, data.address, data.temperature, data.humidity, data.battery);
+      await notifier.notifyInkbirdApi(
+        Math.floor(new Date().getTime() / 1000), machineId, data.address, data.temperature, data.humidity, data.battery);
       watchdogId.refresh();
     } catch (e) {
       // TODO: Save to a file and send to the server later.

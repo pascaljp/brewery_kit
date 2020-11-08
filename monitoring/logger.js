@@ -55,21 +55,22 @@ class Logger {
   async resendWholeData_() {
     const files = fs.readdirSync(this.tempDir_, {withFileTypes: true});
     for (const file of files) {
-      if (file.isFile()) {
-        const entries = fs.readFileSync(Path.join(this.tempDir_, file.name), {encoding: 'utf8'}).split('\n');
-        const fd = fs.openSync(Path.join(this.tempDir_, file.name), 'r+');
-        let position = 0;
-        for (const entry of entries) {
-          if (/\S/.test(entry)) {
-            const data = JSON.parse(entry);
-            await this.notifyInkbirdApi(data.unixtime, data.userId, data.address, data.temperature, data.humidity, data.battery);
-            fs.writeSync(fd, ' '.repeat(entry.length), position);
-          }
-          position += entry.length + '\n'.length;
-        }
-        fs.close(fd);
-        fs.unlinkSync(Path.join(this.tempDir_, file.name));
+      if (!file.isFile()) {
+        continue;
       }
+      const entries = fs.readFileSync(Path.join(this.tempDir_, file.name), {encoding: 'utf8'}).split('\n');
+      const fd = fs.openSync(Path.join(this.tempDir_, file.name), 'r+');
+      let position = 0;
+      for (const entry of entries) {
+        if (/\S/.test(entry)) {
+          const data = JSON.parse(entry);
+          await this.notifyInkbirdApi(data.unixtime, data.userId, data.address, data.temperature, data.humidity, data.battery);
+          fs.writeSync(fd, ' '.repeat(entry.length), position);
+        }
+        position += entry.length + '\n'.length;
+      }
+      fs.close(fd);
+      fs.unlinkSync(Path.join(this.tempDir_, file.name));
     }
   }
 }

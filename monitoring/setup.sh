@@ -1,10 +1,9 @@
 #!/bin/bash -eux
 
-# Enable Bluetooth.
-sudo apt install -y pi-bluetooth
-
 # Setup nodejs.
-sudo apt install -y npm
+sudo apt install -y curl npm
+# Install versioned nodejs and delete the npm installed from apt.
+sudo npm install n -g && n stable && sudo apt-get purge -y nodejs npm
 
 # Setup nodejs's noble library.
 sudo apt install -y bluetooth bluez libbluetooth-dev libudev-dev

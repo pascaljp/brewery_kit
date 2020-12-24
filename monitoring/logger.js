@@ -8,8 +8,9 @@ const logger = log4js.getLogger('logger');
 
 // A class that sends data to pascal's private server.
 class Logger {
-  constructor() {
-    this.tempDir_ = Path.join(__dirname, 'tmp');
+  constructor(tmpdir) {
+    console.log(tmpdir);
+    this.tempDir_ = tmpdir;
     fs.mkdirSync(this.tempDir_, {recursive: true});
     this.filePath_ = Path.join(this.tempDir_, '' + new Date().getTime());
 

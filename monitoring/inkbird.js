@@ -1,12 +1,22 @@
 'use strict';
 const IBS_TH1 = require('ibs_th1');
 const {execSync} = require('child_process');
+const commandLineArgs = require('command-line-args');
 const crypto = require('crypto');
 const fs = require('fs');
 const log4js = require('log4js');
 const path = require('path');
 const {Logger} = require('./logger');
 const {Server} = require('./server');
+
+const optionDefinitions = [
+  {
+    name: 'tmpdir',
+    type: String,
+    defaultValue: '/tmp/var/data/inkbird'
+  },
+];
+const options = commandLineArgs(optionDefinitions);
 
 log4js.configure({
   appenders: {
@@ -21,7 +31,7 @@ log4js.configure({
   },
 });
 const logger = log4js.getLogger('inkbird');
-const notifier = new Logger();
+const notifier = new Logger(options.tmpdir);
 
 // Reboot the machine if there is no data in the past 5 minutes.
 const watchdogId = setTimeout(() => {

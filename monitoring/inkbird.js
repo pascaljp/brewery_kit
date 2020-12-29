@@ -2,10 +2,8 @@
 const IBS_TH1 = require('ibs_th1');
 const {execSync} = require('child_process');
 const commandLineArgs = require('command-line-args');
-const crypto = require('crypto');
 const fs = require('fs');
 const log4js = require('log4js');
-const path = require('path');
 const {Logger} = require('./logger');
 const {Server} = require('./server');
 
@@ -15,6 +13,11 @@ const optionDefinitions = [
     type: String,
     defaultValue: '/tmp/var/data/inkbird'
   },
+  {
+    name: 'config',
+    type: String,
+    defaultValue: '/mnt/inkbird/config.json'
+  }
 ];
 const options = commandLineArgs(optionDefinitions);
 
@@ -67,19 +70,7 @@ const createCallback = (machineId) => {
 };
 
 const getConfig = () => {
-  const configFilePath = path.join(__dirname, 'config.json');
-  try {
-    return JSON.parse(
-        fs.readFileSync(configFilePath, 'UTF-8'));
-  } catch (e) {
-    const S = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    const machineId = 'random-' +
-          Array.from(crypto.randomFillSync(new Uint8Array(16)))
-              .map((n) => S[n % S.length]).join('');
-    const config = {machineId: machineId};
-    fs.writeFileSync(configFilePath, JSON.stringify(config));
-    return config;
-  }
+  return JSON.parse(fs.readFileSync(options.config, 'UTF-8'));
 };
 
 const config = getConfig();

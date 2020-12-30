@@ -29,7 +29,7 @@ const setupConfig = () => {
     config.machineId = machineId;
   }
   console.log(config);
-  fs.writeFileSync(configFilePath, JSON.stringify(config));
+  fs.writeFileSync(options.config, JSON.stringify(config));
   console.info('Succeeded');
 };
 

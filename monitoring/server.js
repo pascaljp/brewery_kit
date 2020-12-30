@@ -5,12 +5,22 @@
 // 4. user sends the machineId to the server.
 // 5. now the server knows the user has an access to the machine.
 
+const commandLineArgs = require('command-line-args');
 const express = require('express');
 const fetch = require('node-fetch');
 const fs = require('fs');
 const log4js = require('log4js');
 const os = require('os');
 const path = require('path');
+
+const optionDefinitions = [
+  {
+    name: 'config',
+    type: String,
+    defaultValue: '/mnt/inkbird/config.json'
+  },
+];
+const options = commandLineArgs(optionDefinitions);
 
 class Server {
   constructor() {
@@ -44,8 +54,7 @@ class Server {
   }
 
   getMachineId_() {
-    const configFilePath = path.join(__dirname, 'config.json');
-    const config = JSON.parse(fs.readFileSync(configFilePath, 'UTF-8'));
+    const config = JSON.parse(fs.readFileSync(options.config, 'UTF-8'));
     return config.machineId;
   }
 

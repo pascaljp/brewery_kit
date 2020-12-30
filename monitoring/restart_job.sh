@@ -1,8 +1,5 @@
 #!/bin/bash -eux
 
-git fetch origin
-git diff origin/master
-
 if [[ "$(git fetch origin && git diff origin/master | wc -l)" == "0" ]]; then
     echo No update.
     exit 0

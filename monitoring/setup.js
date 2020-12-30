@@ -7,18 +7,17 @@ const path = require('path');
 
 const optionDefinitions = [
   {
-    name: 'sharedDir',
+    name: 'config',
     type: String,
-    defaultValue: '/var/lib/docker/volumes/inkbird/_data'
+    defaultValue: '/mnt/inkbird/config.json'
   },
 ];
 const options = commandLineArgs(optionDefinitions);
 
 const setupConfig = () => {
-  const configFilePath = path.join(options.sharedDir, 'config.json');
   let config = {};
   try {
-    config = JSON.parse(fs.readFileSync(configFilePath, 'UTF-8'));
+    config = JSON.parse(fs.readFileSync(options.config, 'UTF-8'));
   } catch (e) {
   }
 

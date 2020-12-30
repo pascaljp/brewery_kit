@@ -11,7 +11,7 @@ const optionDefinitions = [
   {
     name: 'tmpdir',
     type: String,
-    defaultValue: '/tmp/var/data/inkbird'
+    defaultValue: '/mnt/inkbird/data'
   },
   {
     name: 'config',

@@ -5,7 +5,7 @@ if [[ "$(git fetch origin && git diff origin/master | wc -l)" == "0" ]]; then
     exit 0
 fi
 
-git pull
+git pull origin master
 npm install
 sudo chown docker:docker /mnt/inkbird
 node setup.js

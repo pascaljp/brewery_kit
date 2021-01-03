@@ -3,7 +3,12 @@
 # Add this line to crontab.
 #   0 * * * * update_job.sh
 
-if [[ "$(git fetch origin && git diff origin/master | wc -l)" == "0" ]]; then
+SCRIPT_DIR=$(cd $(dirname $0); pwd)
+VERSION=$(curl http://brewery-app.com/current_version)
+echo "Syncing to version ${VERSION}"
+git checkout ${VERSION}
+
+if [[ "$(git fetch origin && git diff origin/${VERSION} | wc -l)" == "0" ]]; then
     echo No update.
     exit 0
 fi
@@ -14,9 +19,9 @@ npm install
 
 # Setup the environment.
 if [[ "${USER}" == "docker" ]]; then
-    node setup.js --target=docker
+    node ${SCRIPT_DIR}/setup.js --target=docker
 else
-    node setup.js --target=native
+    node ${SCRIPT_DIR}/setup.js --target=native
 fi
 
 # Restart the job.

@@ -8,11 +8,22 @@ if [ ! -v "$USER" ]; then
     export USER=$(whoami)
 fi
 set -u
-
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
+
+sudo chown $(whoami):$(whoami) -R /mnt/inkbird
+
 BRANCH=$(curl http://brewery-app.com/current_version)
-echo "Syncing to branch ${BRANCH}"
-git checkout ${BRANCH}
+if [ ! -d /mnt/inkbird/brewery_kit ]; then
+    echo "Cloning git repository branch=${BRANCH}"
+    cd /mnt/inkbird
+    git clone https://github.com/pascaljp/brewery_kit.git -b ${BRANCH} --depth 1
+else
+    echo "Syncing to branch ${BRANCH}"
+    cd /mnt/inkbird/brewery_kit/monitoring
+    git checkout ${BRANCH}
+fi
+
+cd /mnt/inkbird/brewery_kit/monitoring
 
 if [[ "$(git fetch origin && git diff origin/${BRANCH} | wc -l)" == "0" &&
       -d "node_modules" ]]; then
@@ -22,6 +33,7 @@ fi
 
 # Update the code.
 git pull origin ${BRANCH}
+git checkout ${BRANCH}
 npm install
 
 # Setup the environment.

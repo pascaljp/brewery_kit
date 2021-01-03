@@ -4,17 +4,18 @@
 #   0 * * * * update_job.sh
 
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
-VERSION=$(curl http://brewery-app.com/current_version)
-echo "Syncing to version ${VERSION}"
-git checkout ${VERSION}
+BRANCH=$(curl http://brewery-app.com/current_version)
+echo "Syncing to branch ${BRANCH}"
+git checkout ${BRANCH}
 
-if [[ "$(git fetch origin && git diff origin/${VERSION} | wc -l)" == "0" ]]; then
+if [[ "$(git fetch origin && git diff origin/${BRANCH} | wc -l)" == "0" &&
+      -d "node_modules" ]]; then
     echo No update.
     exit 0
 fi
 
 # Update the code.
-git pull origin ${VERSION}
+git pull origin ${BRANCH}
 npm install
 
 # Setup the environment.
@@ -23,6 +24,3 @@ if [[ "${USER}" == "docker" ]]; then
 else
     node ${SCRIPT_DIR}/setup.js --target=native
 fi
-
-# Restart the job.
-pm2 restart inkbird

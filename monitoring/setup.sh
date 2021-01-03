@@ -7,7 +7,6 @@ sudo npm install n -g && sudo n stable && sudo apt-get purge -y nodejs npm
 
 # Setup nodejs's noble library.
 sudo apt install -y bluetooth bluez libbluetooth-dev libudev-dev libcap2-bin
-npm install
 sudo npm install -g pm2
 
 # Without this line node cannot read bluetooth data.

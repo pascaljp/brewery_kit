@@ -22,9 +22,9 @@ const failureRequest = buildRequest(kFailureUserId);
 fetchMock.getOnce(failureRequest, 404, { overwriteRoutes: false });
 fetchMock.getOnce(failureRequest, 200, { overwriteRoutes: false });
 
-const {Logger} = require('./logger');
+const {Notifier} = require('./notifier');
 
-describe('Logger', () => {
+describe('Notifier', () => {
   beforeEach(() => {
   });
 
@@ -32,21 +32,21 @@ describe('Logger', () => {
     fetchMock.restore();
   });
 
-  test('Logger.SendSuccess', async () => {
-    const logger = new Logger('/tmpdir');
+  test('SendSuccess', async () => {
+    const logger = new Notifier('/tmpdir');
     await logger.init();
     await logger.notifyInkbirdApi(1, kSuccessUserId, '00:00:00:00:00:00', 20, 60, 90);
     expect(require('fs').readdirSync('/tmpdir')).toHaveLength(0);
   });
 
-  test('Logger.Fails', async () => {
-    const logger = new Logger('/tmpdir');
+  test('Fails', async () => {
+    const logger = new Notifier('/tmpdir');
     await logger.init();
     await logger.notifyInkbirdApi(1, kFailureUserId, '00:00:00:00:00:00', 20, 60, 90);
     // The data is stored on the disk.
     expect(require('fs').readdirSync('/tmpdir')).toHaveLength(1);
 
-    const logger2 = new Logger('/tmpdir');
+    const logger2 = new Notifier('/tmpdir');
     await logger2.init();
     // All logs are commited on startup.
     expect(require('fs').readdirSync('/tmpdir')).toHaveLength(0);

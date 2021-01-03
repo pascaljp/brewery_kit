@@ -3,7 +3,7 @@ const IBS_TH1 = require('ibs_th1');
 const {execSync} = require('child_process');
 const fs = require('fs');
 const log4js = require('log4js');
-const {Logger} = require('./logger');
+const {Notifier} = require('./notifier');
 const {Server} = require('./server');
 const getConfig = require('./config').getConfig;
 
@@ -48,7 +48,6 @@ const createCallback = (notifier, machineId) => {
         Math.floor(new Date().getTime() / 1000), machineId, data.address, data.temperature, data.humidity, data.battery);
       watchdogId.refresh();
     } catch (e) {
-      // TODO: Save to a file and send to the server later.
       logger.error(e.error);
     }
   };
@@ -57,7 +56,7 @@ const createCallback = (notifier, machineId) => {
 const config = getConfig();
 logger.mark(`Machine ID: ${config.machineId}`);
 
-const notifier = new Logger(config.dataDir);
+const notifier = new Notifier(config.dataDir);
 notifier.init();
 
 // Server needs to start up after config file is created.

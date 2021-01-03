@@ -6,26 +6,19 @@ jest.mock('node-fetch');
 const kSuccessUserId = 'successUserId';
 const kFailureUserId = 'failureUserId';
 
-const kSharedRequest = {
-  url: 'https://brewery-app.com/api/inkbird/notify',
-  method: 'GET',
-  body: {
-    // userId is needed when we use this template.
-    deviceId: '00:00:00:00:00:00',
-    temperature: 20,
-    humidity: 60,
-    battery: 90
-  }
-};
+const buildRequest = (userId) => {
+  return {
+    url: new RegExp(`https://brewery-app.com/api/inkbird/notify\?.*userId=${userId}`),
+    method: 'GET',
+  };
+}
 
 // Success case.
-const successRequest = Object.assign(Object.assign({}, kSharedRequest));
-successRequest.body.userId = kSuccessUserId;
+const successRequest = buildRequest(kSuccessUserId);
 fetchMock.getOnce(successRequest, 200, { overwriteRoutes: false });
 
 // Failure case. Fails for the first attempt, and retry succeeds.
-const failureRequest = Object.assign(Object.assign({}, kSharedRequest));
-failureRequest.body.userId = kFailureUserId;
+const failureRequest = buildRequest(kFailureUserId);
 fetchMock.getOnce(failureRequest, 404, { overwriteRoutes: false });
 fetchMock.getOnce(failureRequest, 200, { overwriteRoutes: false });
 

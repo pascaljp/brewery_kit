@@ -25,22 +25,22 @@ class Logger {
     if (!(unixtime && address && temperature && humidity && battery)) {
       throw new Error('Required fields are not set');
     }
-    return fetch('https://brewery-app.com/api/inkbird/notify', {
+    const params = new URLSearchParams({
+      userId: userId,
+      deviceId: address,
+      temperature: '' + temperature,
+      humidity: '' + humidity,
+      battery: '' + battery,
+    });
+    return fetch(`https://brewery-app.com/api/inkbird/notify?${params}`, {
       method: 'GET',
-      timeout: 5 * 1000,
-      body: {
-        userId: userId,
-        deviceId: address,
-        temperature: '' + temperature,
-        humidity: '' + humidity,
-        battery: '' + battery,
-      }
+      timeout: 5 * 1000
     }).then(response => {
       if (!response.ok) {
         throw new Error();
       }
       return response.body;
-    }).catch(() => {
+    }).catch((e) => {
       this.saveToDisk_({unixtime, userId, address, temperature, humidity, battery});
     });
   }

@@ -35,6 +35,7 @@ log4js.configure({
 });
 const logger = log4js.getLogger('inkbird');
 const notifier = new Logger(options.tmpdir);
+notifier.init();
 
 // Reboot the machine if there is no data in the past 5 minutes.
 const watchdogId = setTimeout(() => {

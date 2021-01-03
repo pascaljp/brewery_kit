@@ -10,15 +10,15 @@ const logger = log4js.getLogger('logger');
 class Logger {
   constructor(tmpdir) {
     this.tempDir_ = tmpdir;
-    try {
-      fs.mkdirSync(this.tempDir_, {recursive: true});
-    } catch {
-    }
     this.filePath_ = Path.join(this.tempDir_, '' + new Date().getTime());
-
     this.lock_ = new AsyncLock({ timeout: 3000 });
 
-    this.resendWholeData_();
+    fs.mkdirSync(this.tempDir_, {recursive: true});
+  }
+
+  // Time consuming, but this task does not block anyting.
+  async init() {
+    await this.resendWholeData_();
   }
 
   async notifyInkbirdApi(unixtime, userId, address, temperature, humidity, battery) {
@@ -66,8 +66,9 @@ class Logger {
       if (!file.isFile()) {
         continue;
       }
-      const entries = fs.readFileSync(Path.join(this.tempDir_, file.name), {encoding: 'utf8'}).split('\n');
-      const fd = fs.openSync(Path.join(this.tempDir_, file.name), 'r+');
+      const fullPath = Path.join(this.tempDir_, file.name);
+      const entries = fs.readFileSync(fullPath, {encoding: 'utf8'}).split('\n');
+      const fd = fs.openSync(fullPath, 'r+');
       let position = 0;
       for (const entry of entries) {
         if (/\S/.test(entry)) {
@@ -77,8 +78,8 @@ class Logger {
         }
         position += entry.length + '\n'.length;
       }
-      fs.close(fd);
-      fs.unlinkSync(Path.join(this.tempDir_, file.name));
+      fs.closeSync(fd);
+      fs.unlinkSync(fullPath);
     }
   }
 }

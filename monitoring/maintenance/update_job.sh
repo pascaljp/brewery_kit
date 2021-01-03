@@ -8,7 +8,8 @@ BRANCH=$(curl http://brewery-app.com/current_version)
 echo "Syncing to branch ${BRANCH}"
 git checkout ${BRANCH}
 
-if [[ "$(git fetch origin && git diff origin/${BRANCH} | wc -l)" == "0" ]]; then
+if [[ "$(git fetch origin && git diff origin/${BRANCH} | wc -l)" == "0" &&
+      -d "node_modules" ]]; then
     echo No update.
     exit 0
 fi
@@ -22,12 +23,4 @@ if [[ "${USER}" == "docker" ]]; then
     node ${SCRIPT_DIR}/setup.js --target=docker
 else
     node ${SCRIPT_DIR}/setup.js --target=native
-fi
-
-# Restart the job.
-pm2 describe inkbird
-if [[ "$?" == "0" ]]; then
-    pm2 restart inkbird
-else
-    pm2 start ${SCRIPT_DIR}/../inkbird.js --name inkbird
 fi

@@ -3,13 +3,17 @@
 # Add this line to crontab.
 #   0 * * * * update_job.sh
 
-if [[ "$(git fetch origin && git diff origin/master | wc -l)" == "0" ]]; then
+VERSION=$(curl http://brewery-app.com/current_version)
+echo "Syncing to version ${VERSION}"
+git checkout ${VERSION}
+
+if [[ "$(git fetch origin && git diff origin/${VERSION} | wc -l)" == "0" ]]; then
     echo No update.
     exit 0
 fi
 
 # Update the code.
-git pull origin master
+git pull origin ${VERSION}
 npm install
 
 # Setup the environment.

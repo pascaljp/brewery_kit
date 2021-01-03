@@ -1,6 +1,6 @@
 const fs = require('fs');
 const log4js = require('log4js');
-const rp = require('request-promise');
+const fetch = require('node-fetch');
 const AsyncLock = require('async-lock');
 const Path = require('path');
 
@@ -9,9 +9,11 @@ const logger = log4js.getLogger('logger');
 // A class that sends data to pascal's private server.
 class Logger {
   constructor(tmpdir) {
-    console.log(tmpdir);
     this.tempDir_ = tmpdir;
-    fs.mkdirSync(this.tempDir_, {recursive: true});
+    try {
+      fs.mkdirSync(this.tempDir_, {recursive: true});
+    } catch {
+    }
     this.filePath_ = Path.join(this.tempDir_, '' + new Date().getTime());
 
     this.lock_ = new AsyncLock({ timeout: 3000 });
@@ -20,32 +22,37 @@ class Logger {
   }
 
   async notifyInkbirdApi(unixtime, userId, address, temperature, humidity, battery) {
-    if (unixtime && address && temperature && humidity && battery) {
-      return rp({
-        uri: 'https://brewery-app.com/api/inkbird/notify',
-        qs: {
-          userId: userId,
-          deviceId: address,
-          temperature: temperature,
-          humidity: humidity,
-          battery: battery,
-        },
-        timeout: 5 * 1000,
-      }).catch(() => {
-        this.saveToDisk_({unixtime, userId, address, temperature, humidity, battery});
-      });
+    if (!(unixtime && address && temperature && humidity && battery)) {
+      throw new Error('Required fields are not set');
     }
+    return fetch('https://brewery-app.com/api/inkbird/notify', {
+      method: 'GET',
+      timeout: 5 * 1000,
+      body: {
+        userId: userId,
+        deviceId: address,
+        temperature: '' + temperature,
+        humidity: '' + humidity,
+        battery: '' + battery,
+      }
+    }).then(response => {
+      if (!response.ok) {
+        throw new Error();
+      }
+      return response.body;
+    }).catch(() => {
+      this.saveToDisk_({unixtime, userId, address, temperature, humidity, battery});
+    });
   }
 
   async saveToDisk_(data) {
     await this.lock_.acquire('disk_lock', () => {
-      fs.appendFileSync(this.filePath_, JSON.stringify(data) + '\n', (err) => {
-        if (err) {
-          logger.error('Failed to append to file:', JSON.stringify(data));
-          return;
-        }
-        logger.warning('Logged to local file.');
-      });
+      try {
+        fs.appendFileSync(this.filePath_, JSON.stringify(data) + '\n');
+        logger.warn('Logged to local file.');
+      } catch (err) {
+        logger.error('Failed to append to file:', JSON.stringify(data), err);
+      };
     }, (err, ret) => {
       if (err) {
         logger.error('Failed to acquire lock:', err.message, JSON.stringify(data));

@@ -2,22 +2,45 @@
 
 const commandLineArgs = require('command-line-args');
 const crypto = require('crypto');
+const execSync = require('child_process').execSync;
 const fs = require('fs');
 const path = require('path');
 
+const USER = process.env.USER;
+
 const optionDefinitions = [
   {
-    name: 'config',
+    name: 'target',
     type: String,
-    defaultValue: '/mnt/inkbird/config.json'
+    defaultValue: ''
   },
 ];
 const options = commandLineArgs(optionDefinitions);
 
+const getDataDir = () => {
+  let dir;
+  switch (options.target) {
+  case 'docker':
+    return '/mnt/inkbird';
+  case 'native':
+    return `/home/${USER}/.inkbird`;
+  default:
+    console.error('Invalid argument: --target parameter should be one of "docker" or "native"');
+    process.exit(1);
+  }
+};
+
+const getConfigPath = () => {
+  return path.join(getDataDir(), 'config.json');
+};
+
 const setupConfig = () => {
+  const configPath = getConfigPath();
+  const configDir = path.dirname(configPath);
+
   let config = {};
   try {
-    config = JSON.parse(fs.readFileSync(options.config, 'UTF-8'));
+    config = JSON.parse(fs.readFileSync(configPath, 'UTF-8'));
   } catch (e) {
   }
 
@@ -28,8 +51,13 @@ const setupConfig = () => {
           .map((n) => S[n % S.length]).join('');
     config.machineId = machineId;
   }
+  config.dataDir = path.join(getDataDir(), 'data');
   console.log(config);
-  fs.writeFileSync(options.config, JSON.stringify(config));
+
+  execSync(`sudo mkdir -p ${configDir}`);
+  execSync(`sudo chown ${USER}:${USER} ${configDir}`);
+  execSync(`mkdir -p ${config.dataDir}`);
+  fs.writeFileSync(configPath, JSON.stringify(config));
   console.info('Succeeded');
 };
 

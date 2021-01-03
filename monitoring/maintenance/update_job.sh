@@ -3,9 +3,12 @@
 # Add this line to crontab.
 #   0 * * * * update_job.sh
 
-if [[ "${USER}" == "" ]]; then
-    USER=$(whoami)
+set +u
+if [ ! -v "$USER" ]; then
+    export USER=$(whoami)
 fi
+set -u
+
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
 BRANCH=$(curl http://brewery-app.com/current_version)
 echo "Syncing to branch ${BRANCH}"

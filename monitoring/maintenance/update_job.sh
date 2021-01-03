@@ -10,10 +10,10 @@ fi
 set -u
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
 
-sudo chown $(whoami):$(whoami) -R /mnt/inkbird
+sudo chown ${USER}:${USER} -R /mnt/inkbird
 
 BRANCH=$(curl http://brewery-app.com/current_version)
-if [ ! -d /mnt/inkbird/brewery_kit ]; then
+if [ ! -d /mnt/inkbird/brewery_kit/monitoring/maintenance ]; then
     echo "Cloning git repository branch=${BRANCH}"
     cd /mnt/inkbird
     git clone https://github.com/pascaljp/brewery_kit.git -b ${BRANCH} --depth 1
@@ -38,7 +38,7 @@ git checkout ${BRANCH}
 npm install
 
 # Setup the environment.
-if [[ "$(whoami)" == "docker" ]]; then
+if [[ "${USER}" == "docker" ]]; then
     node ${SCRIPT_DIR}/setup.js --target=docker
 else
     node ${SCRIPT_DIR}/setup.js --target=native

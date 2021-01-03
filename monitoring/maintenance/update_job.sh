@@ -25,4 +25,9 @@ else
 fi
 
 # Restart the job.
-pm2 restart inkbird
+pm2 describe inkbird
+if [[ "$?" == "0" ]]; then
+    pm2 restart inkbird
+else
+    pm2 start ${SCRIPT_DIR}/../inkbird.js --name inkbird
+fi

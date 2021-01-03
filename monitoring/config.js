@@ -2,8 +2,8 @@ const fs = require('fs');
 
 const getConfig = () => {
   const CONFIG_PATHS = [
-    '/mnt/inkbird/config.json',
     `/home/${process.env.USER}/.inkbird/config.json`,
+    '/mnt/inkbird/config.json',
   ];
   for (const path of CONFIG_PATHS) {
     try {

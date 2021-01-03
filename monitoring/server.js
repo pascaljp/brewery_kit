@@ -45,8 +45,7 @@ class Server {
   }
 
   getMachineId_() {
-    const config = JSON.parse(fs.readFileSync(getConfig(), 'UTF-8'));
-    return config.machineId;
+    return getConfig().machineId;
   }
 
   async notifyLocalIpAddress_(machineId) {

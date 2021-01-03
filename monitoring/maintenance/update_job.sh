@@ -20,6 +20,7 @@ if [ ! -d /mnt/inkbird/brewery_kit ]; then
 else
     echo "Syncing to branch ${BRANCH}"
     cd /mnt/inkbird/brewery_kit/monitoring
+    git fetch origin ${BRANCH}
     git checkout ${BRANCH}
 fi
 

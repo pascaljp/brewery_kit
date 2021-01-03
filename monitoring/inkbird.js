@@ -1,25 +1,11 @@
 'use strict';
 const IBS_TH1 = require('ibs_th1');
 const {execSync} = require('child_process');
-const commandLineArgs = require('command-line-args');
 const fs = require('fs');
 const log4js = require('log4js');
 const {Logger} = require('./logger');
 const {Server} = require('./server');
-
-const optionDefinitions = [
-  {
-    name: 'tmpdir',
-    type: String,
-    defaultValue: '/mnt/inkbird/data'
-  },
-  {
-    name: 'config',
-    type: String,
-    defaultValue: '/mnt/inkbird/config.json'
-  }
-];
-const options = commandLineArgs(optionDefinitions);
+const getConfig = require('./config').getConfig;
 
 log4js.configure({
   appenders: {
@@ -34,8 +20,6 @@ log4js.configure({
   },
 });
 const logger = log4js.getLogger('inkbird');
-const notifier = new Logger(options.tmpdir);
-notifier.init();
 
 // Reboot the machine if there is no data in the past 5 minutes.
 const watchdogId = setTimeout(() => {
@@ -54,7 +38,7 @@ const watchdogId = setTimeout(() => {
 // The watchdog does not prevent the program to terminate.
 watchdogId.unref();
 
-const createCallback = (machineId) => {
+const createCallback = (notifier, machineId) => {
   return async (data) => {
     logger.trace(
         data.address, data.date, data.temperature, data.humidity,
@@ -70,12 +54,11 @@ const createCallback = (machineId) => {
   };
 };
 
-const getConfig = () => {
-  return JSON.parse(fs.readFileSync(options.config, 'UTF-8'));
-};
-
 const config = getConfig();
 logger.mark(`Machine ID: ${config.machineId}`);
+
+const notifier = new Logger(config.dataDir);
+notifier.init();
 
 // Server needs to start up after config file is created.
 const server = new Server();
@@ -84,4 +67,4 @@ server.start();
 // Subscribe inkbird signals.
 logger.mark('Inkbird monitoring program has started.');
 const device = new IBS_TH1();
-device.subscribeRealtimeData(createCallback(config.machineId));
+device.subscribeRealtimeData(createCallback(notifier, config.machineId));

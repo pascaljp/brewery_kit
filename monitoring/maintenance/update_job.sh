@@ -4,17 +4,17 @@
 #   0 * * * * update_job.sh
 
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
-VERSION=$(curl http://brewery-app.com/current_version)
-echo "Syncing to version ${VERSION}"
-git checkout ${VERSION}
+BRANCH=$(curl http://brewery-app.com/current_version)
+echo "Syncing to branch ${BRANCH}"
+git checkout ${BRANCH}
 
-if [[ "$(git fetch origin && git diff origin/${VERSION} | wc -l)" == "0" ]]; then
+if [[ "$(git fetch origin && git diff origin/${BRANCH} | wc -l)" == "0" ]]; then
     echo No update.
     exit 0
 fi
 
 # Update the code.
-git pull origin master
+git pull origin ${BRANCH}
 npm install
 
 # Setup the environment.

@@ -3,6 +3,9 @@
 # Add this line to crontab.
 #   0 * * * * update_job.sh
 
+if [[ "${USER}" == "" ]]; then
+    USER=$(whoami)
+fi
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
 BRANCH=$(curl http://brewery-app.com/current_version)
 echo "Syncing to branch ${BRANCH}"
@@ -19,7 +22,7 @@ git pull origin ${BRANCH}
 npm install
 
 # Setup the environment.
-if [[ "${USER}" == "docker" ]]; then
+if [[ "$(whoami)" == "docker" ]]; then
     node ${SCRIPT_DIR}/setup.js --target=docker
 else
     node ${SCRIPT_DIR}/setup.js --target=native

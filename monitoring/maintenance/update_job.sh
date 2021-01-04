@@ -22,7 +22,7 @@ else
     cd /mnt/inkbird/brewery_kit/monitoring
     if [[ "$(git fetch origin ${BRANCH} && git diff origin/${BRANCH} | wc -l)" == "0" &&
               -d "node_modules" ]]; then
-        echo No update.
+        echo No update
         exit 0
     fi
 
@@ -40,9 +40,4 @@ else
     node maintenance/setup.js --target=native
 fi
 
-if [[ "$(docker ps -a | grep brewery-kit-instance | wc -l)" != "0" ]]; then
-    docker stop brewery-kit-instance
-fi
-
-docker create --rm --privileged --net=host --name brewery-kit-instance --mount type=volume,src=inkbird,dst=/mnt/inkbird pascaljp/inkbird:0.1 node brewery_kit/monitoring/inkbird.js
-docker start brewery-kit-instance
+echo Updated

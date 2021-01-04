@@ -39,3 +39,10 @@ if [[ "${USER}" == "docker" ]]; then
 else
     node maintenance/setup.js --target=native
 fi
+
+if [[ "$(docker ps -a | grep brewery-kit-instance | wc -l)" != "0" ]]; then
+    docker stop brewery-kit-instance
+fi
+
+docker create --rm --privileged --net=host --name brewery-kit-instance --mount type=volume,src=inkbird,dst=/mnt/inkbird pascaljp/inkbird:0.1 node brewery_kit/monitoring/inkbird.js
+docker start brewery-kit-instance

@@ -8,10 +8,10 @@ if [ ! -v "$USER" ]; then
     export USER=$(whoami)
 fi
 set -u
-SCRIPT_DIR=$(cd $(dirname $0); pwd)
 
 sudo chown ${USER}:${USER} -R /mnt/inkbird
 
+# Update the code. Exit if there is no update.
 BRANCH=$(curl http://brewery-app.com/current_version)
 if [ ! -d /mnt/inkbird/brewery_kit/monitoring/maintenance ]; then
     echo "Cloning git repository branch=${BRANCH}"
@@ -20,26 +20,22 @@ if [ ! -d /mnt/inkbird/brewery_kit/monitoring/maintenance ]; then
 else
     echo "Syncing to branch ${BRANCH}"
     cd /mnt/inkbird/brewery_kit/monitoring
-    git fetch origin ${BRANCH}
+    if [[ "$(git fetch origin ${BRANCH} && git diff origin/${BRANCH} | wc -l)" == "0" &&
+              -d "node_modules" ]]; then
+        echo No update.
+        exit 0
+    fi
+
+    git pull origin ${BRANCH}
     git checkout ${BRANCH}
 fi
 
 cd /mnt/inkbird/brewery_kit/monitoring
-
-if [[ "$(git fetch origin && git diff origin/${BRANCH} | wc -l)" == "0" &&
-      -d "node_modules" ]]; then
-    echo No update.
-    exit 0
-fi
-
-# Update the code.
-git pull origin ${BRANCH}
-git checkout ${BRANCH}
 npm install
 
 # Setup the environment.
 if [[ "${USER}" == "docker" ]]; then
-    node ${SCRIPT_DIR}/setup.js --target=docker
+    node maintenance/setup.js --target=docker
 else
-    node ${SCRIPT_DIR}/setup.js --target=native
+    node maintenance/setup.js --target=native
 fi

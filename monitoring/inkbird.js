@@ -1,10 +1,11 @@
 'use strict';
 const IBS_TH1 = require('ibs_th1');
-const {execSync} = require('child_process');
+const execSync = require('child_process').execSync;
 const fs = require('fs');
 const log4js = require('log4js');
-const {Notifier} = require('./notifier');
-const {Server} = require('./server');
+
+const Notifier = require('./notifier').Notifier;
+const Server = require('./server/main').Server;
 const getConfig = require('./config').getConfig;
 
 log4js.configure({

@@ -7,45 +7,27 @@
 
 const express = require('express');
 const fetch = require('node-fetch');
-const fs = require('fs');
 const log4js = require('log4js');
 const os = require('os');
-const path = require('path');
-const getConfig = require('./config').getConfig;
+const getConfig = require('../config').getConfig;
 
 class Server {
   constructor() {
     this.logger_ = log4js.getLogger('server');
     this.app_ = express();
     this.server_ = null;
+    this.machineId_ = getConfig().machineId;
 
-    this.app_.get('/', (req, res) => {
-      res.send('OK');
-    });
-
-    this.app_.get('/getMachineId', (req, res) => {
-      res.header('Content-Type', 'application/json; charset=utf-8');
-      res.header('Access-Control-Allow-Origin', 'https://brewery-app.com');
-      res.header('Access-Control-Allow-Origin', 'http://brewery-app.com');
-      try {
-        const machineId = this.getMachineId_();
-        res.json({status: 'ok', machineId: machineId});
-      } catch (e) {
-        res.json({status: 'error', error: e});
-      }
-    });
+    this.app_.get('/', (req, res) => { res.send('OK'); });
+    this.app_.get('/getMachineId', this.getMachineId_.bind(this));
   }
 
   start() {
     this.logger_.mark('Starting up a server...');
     this.server_ = this.app_.listen(0, () => {
       this.logger_.info('Server started.');
-      this.notifyLocalIpAddress_(this.getMachineId_());
+      this.notifyLocalIpAddress_(this.machineId_);
     });
-  }
-
-  getMachineId_() {
-    return getConfig().machineId;
   }
 
   async notifyLocalIpAddress_(machineId) {
@@ -79,6 +61,18 @@ class Server {
       }
     }
   }
+
+  getMachineId_(req, res, next) {
+    res.header('Content-Type', 'application/json; charset=utf-8');
+    res.header('Access-Control-Allow-Origin', 'https://brewery-app.com');
+    res.header('Access-Control-Allow-Origin', 'http://brewery-app.com');
+    try {
+      res.json({status: 'ok', machineId: this.machineId_});
+    } catch (e) {
+      res.json({status: 'error', error: e});
+    }
+  }
+
 }
 
 exports.Server = Server;

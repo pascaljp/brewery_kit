@@ -4,7 +4,7 @@ const fetch = require('node-fetch');
 const AsyncLock = require('async-lock');
 const Path = require('path');
 
-const logger = log4js.getLogger('logger');
+const logger = log4js.getLogger('notifier');
 
 // A class that sends data to pascal's private server.
 class Notifier {
@@ -23,9 +23,10 @@ class Notifier {
 
   async notifyInkbirdApi(unixtime, userId, address, temperature, humidity, battery) {
     if (!(unixtime && address && temperature && humidity && battery)) {
-      throw new Error('Required fields are not set');
+      throw new Error(`Required fields are not set ${unixtime}, ${address}, ${temperature}, ${humidity}, ${battery}`);
     }
     const params = new URLSearchParams({
+      unixtime: unixtime,
       userId: userId,
       deviceId: address,
       temperature: '' + temperature,
@@ -37,10 +38,11 @@ class Notifier {
       timeout: 5 * 1000
     }).then(response => {
       if (!response.ok) {
-        throw new Error();
+        throw new Error('Response is not OK');
       }
       return response.body;
     }).catch((e) => {
+      logger.error('Error in notifyInkbirdApi:', e);
       this.saveToDisk_({unixtime, userId, address, temperature, humidity, battery});
     });
   }

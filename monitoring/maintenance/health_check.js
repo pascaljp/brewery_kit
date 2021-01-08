@@ -1,5 +1,6 @@
 const dns = require('dns');
 const execSync = require('child_process').execSync;
+const util = require('util');
 
 class HealthCheck {
   constructor() {
@@ -30,8 +31,8 @@ class HealthCheck {
     try {
       const result = execSync(
         'docker ps -a --filter name=brewery-kit-instance --format "{{.State}}"');
-      const jobState = new TextDecoder('utf-8').decode(result).split('\n')[0];
-      return jobState.find('running') != -1;
+      const jobState = new util.TextDecoder('utf-8').decode(result).split('\n')[0];
+      return jobState.indexOf('running') != -1;
     } catch {
       return false;
     }
@@ -48,8 +49,6 @@ class HealthCheck {
 }
 
 (async () => {
-  console.log(process.env);
-
   // execSync('sudo chown');
   const h = new HealthCheck();
   let success = true;

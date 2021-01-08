@@ -11,7 +11,7 @@ const getConfig = require('./config').getConfig;
 log4js.configure({
   appenders: {
     out: {type: 'stdout', layout: {type: 'basic'}},
-    // err: {type: 'stderr', layout: {type: 'basic'}, level: 'warning'},
+    err: {type: 'stderr', layout: {type: 'basic'}, level: 'warn'},
   },
   categories: {
     default: {appenders: ['out'], level: 'warn'},

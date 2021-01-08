@@ -10,13 +10,14 @@ const getConfig = require('./config').getConfig;
 log4js.configure({
   appenders: {
     out: {type: 'stdout', layout: {type: 'basic'}},
-    err: {type: 'stderr', layout: {type: 'basic'}, level: 'warning'},
+    // err: {type: 'stderr', layout: {type: 'basic'}, level: 'warning'},
   },
   categories: {
-    default: {appenders: ['out'], level: 'all'},
+    default: {appenders: ['out'], level: 'warning'},
     ibs_th1: {appenders: ['out', 'err'], level: 'error'},
-    inkbird: {appenders: ['out', 'err'], level: 'trace'},
+    inkbird: {appenders: ['out', 'err'], level: 'info'},
     server: {appenders: ['out', 'err'], level: 'info'},
+    notifier: {appenders: ['out', 'err'], level: 'info'},
   },
 });
 const logger = log4js.getLogger('inkbird');
@@ -26,9 +27,9 @@ const watchdogId = setTimeout(() => {
   logger.error('Seems like inkbird process is not working properly.');
   logger.error('Rebooting the machine...');
   try {
-    const stdout = execSync('/sbin/reboot');
-    logger.mark('Reboot command succeeded... Rebooting...');
-    logger.mark(stdout);
+    // const stdout = execSync('/sbin/reboot');
+    // logger.mark('Reboot command succeeded... Rebooting...');
+    // logger.mark(stdout);
     process.exit(1);
   } catch (e) {
     logger.error('Failed to reboot the machine.');
@@ -38,17 +39,25 @@ const watchdogId = setTimeout(() => {
 // The watchdog does not prevent the program to terminate.
 watchdogId.unref();
 
+// device ID to unixtime.
+const lastNotifyTime = {};
 const createCallback = (notifier, machineId) => {
   return async (data) => {
+    const currentUnixtime = Math.floor(new Date().getTime() / 1000);
+    if (lastNotifyTime[data.address] && parseInt(lastNotifyTime[data.address] / 10) == parseInt(currentUnixtime / 10)) {
+      return;
+    }
     logger.trace(
         data.address, data.date, data.temperature, data.humidity,
         data.probeType, data.battery);
+    lastNotifyTime[data.address] = currentUnixtime;
+
     try {
       await notifier.notifyInkbirdApi(
-        Math.floor(new Date().getTime() / 1000), machineId, data.address, data.temperature, data.humidity, data.battery);
+        currentUnixtime, machineId, data.address, data.temperature, data.humidity, data.battery);
       watchdogId.refresh();
     } catch (e) {
-      logger.error(e.error);
+      logger.error('Error in notifier.notifyInkbirdApi:', e);
     }
   };
 };

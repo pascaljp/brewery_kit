@@ -14,7 +14,7 @@ log4js.configure({
     // err: {type: 'stderr', layout: {type: 'basic'}, level: 'warning'},
   },
   categories: {
-    default: {appenders: ['out'], level: 'warning'},
+    default: {appenders: ['out'], level: 'warn'},
     ibs_th1: {appenders: ['out', 'err'], level: 'error'},
     inkbird: {appenders: ['out', 'err'], level: 'info'},
     server: {appenders: ['out', 'err'], level: 'info'},

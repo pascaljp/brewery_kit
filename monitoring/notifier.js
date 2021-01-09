@@ -4,7 +4,7 @@ const fetch = require('node-fetch');
 const AsyncLock = require('async-lock');
 const Path = require('path');
 
-const logger = log4js.getLogger('notifier');
+const logger = log4js.getLogger();
 
 // A class that sends data to pascal's private server.
 class Notifier {

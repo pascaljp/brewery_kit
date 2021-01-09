@@ -13,7 +13,7 @@ const getConfig = require('../config').getConfig;
 
 class Server {
   constructor() {
-    this.logger_ = log4js.getLogger('server');
+    this.logger_ = log4js.getLogger();
     this.app_ = express();
     this.server_ = null;
     this.machineId_ = getConfig().machineId;

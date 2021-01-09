@@ -8,7 +8,7 @@
     "await-semaphore": "^0.1.3",
     "command-line-args": "^5.1.1",
     "express": "^4.17.1",
-    "ibs_th1": "^1.0.6",
+    "ibs_th1": "^1.1.0",
     "log4js": "^6.3.0",
     "moment-timezone": "^0.5.32",
     "node-fetch": "^2.6.1"

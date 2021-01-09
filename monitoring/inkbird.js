@@ -55,7 +55,7 @@ const createCallback = (notifier, machineId) => {
 
     try {
       await notifier.notifyInkbirdApi(
-        currentUnixtime, machineId, data.address, data.temperature, data.humidity, data.battery);
+        currentUnixtime, machineId, data.address, data.temperature, data.humidity, data.battery, false);
       watchdogId.refresh();
     } catch (e) {
       logger.error('Error in notifier.notifyInkbirdApi:', e);

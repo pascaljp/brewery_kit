@@ -21,19 +21,24 @@ class Notifier {
     await this.resendWholeData_();
   }
 
-  async notifyInkbirdApi(unixtime, userId, address, temperature, humidity, battery) {
+  async notifyInkbirdApi(unixtime, machineId, address, temperature, humidity, battery, isBackfill) {
     if (!(unixtime && address && temperature && humidity && battery)) {
       throw new Error(`Required fields are not set ${unixtime}, ${address}, ${temperature}, ${humidity}, ${battery}`);
     }
-    const params = new URLSearchParams({
+    const params = {
       unixtime: unixtime,
-      userId: userId,
+      machineId: machineId,
       deviceId: address,
       temperature: '' + temperature,
       humidity: '' + humidity,
       battery: '' + battery,
-    });
-    return fetch(`https://brewery-app.com/api/inkbird/notify?${params}`, {
+    };
+    if (isBackfill) {
+      params['backfill'] = 'true';
+    }
+
+    const paramStr = new URLSearchParams(params);
+    return fetch(`https://brewery-app.com/api/inkbird/notify?${paramStr}`, {
       method: 'GET',
       timeout: 5 * 1000
     }).then(response => {
@@ -43,7 +48,7 @@ class Notifier {
       return response.body;
     }).catch((e) => {
       logger.error('Error in notifyInkbirdApi:', e);
-      this.saveToDisk_({unixtime, userId, address, temperature, humidity, battery});
+      this.saveToDisk_({unixtime, machineId, address, temperature, humidity, battery});
     });
   }
 
@@ -75,7 +80,8 @@ class Notifier {
       for (const entry of entries) {
         if (/\S/.test(entry)) {
           const data = JSON.parse(entry);
-          await this.notifyInkbirdApi(data.unixtime, data.userId, data.address, data.temperature, data.humidity, data.battery);
+          const machineId = data.userId || data.machineId;
+          await this.notifyInkbirdApi(data.unixtime, machineId, data.address, data.temperature, data.humidity, data.battery, true);
           fs.writeSync(fd, ' '.repeat(entry.length), position);
         }
         position += entry.length + '\n'.length;

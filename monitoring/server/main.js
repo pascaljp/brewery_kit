@@ -39,7 +39,7 @@ class Server {
         if (entry.family != 'IPv4') {
           continue;
         }
-        if (entry.address == '127.0.0.1') {
+        if (entry.internal) {
           continue;
         }
 

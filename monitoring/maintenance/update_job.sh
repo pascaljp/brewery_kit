@@ -12,7 +12,7 @@ set -u
 sudo chown ${USER}:${USER} -R /mnt/inkbird
 
 # Update the code. Exit if there is no update.
-BRANCH=$(curl http://brewery-app.com/current_version)
+BRANCH=$(curl http://brewery-app.com/current_version 2>/dev/null)
 if [ ! -d /mnt/inkbird/brewery_kit/monitoring/maintenance ]; then
     echo "Cloning git repository branch=${BRANCH}"
     cd /mnt/inkbird
@@ -26,8 +26,8 @@ else
         exit 0
     fi
 
-    git pull origin ${BRANCH}
-    git checkout ${BRANCH}
+    git pull origin ${BRANCH} >/dev/null 2>/dev/null
+    git checkout ${BRANCH} >/dev/null 2>/dev/null
 fi
 
 cd /mnt/inkbird/brewery_kit/monitoring

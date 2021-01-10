@@ -20,7 +20,7 @@ if [ ! -d /mnt/inkbird/brewery_kit/monitoring/maintenance ]; then
 else
     echo "Syncing to branch ${BRANCH}"
     cd /mnt/inkbird/brewery_kit/monitoring
-    if [[ "$(git fetch origin ${BRANCH} && git diff origin/${BRANCH} | wc -l)" == "0" &&
+    if [[ "$(git fetch origin ${BRANCH} 2>/dev/null && git diff origin/${BRANCH} | wc -l)" == "0" &&
               -d "node_modules" ]]; then
         echo No update
         exit 0

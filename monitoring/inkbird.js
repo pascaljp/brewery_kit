@@ -9,6 +9,8 @@ const Notifier = require('./notifier').Notifier;
 const Server = require('./server/main').Server;
 const getConfig = require('./config').getConfig;
 
+const MONITORING_FREQUENCY = 60;  // Once in every 60 seconds.
+
 log4js.addLayout('with_filename', function(config) {
   return function(logEvent) {
     const level = logEvent.level.levelStr[0];
@@ -59,7 +61,7 @@ const lastNotifyTime = {};
 const createCallback = (notifier, machineId) => {
   return async (data) => {
     const currentUnixtime = Math.floor(new Date().getTime() / 1000);
-    if (lastNotifyTime[data.address] && parseInt(lastNotifyTime[data.address] / 10) == parseInt(currentUnixtime / 10)) {
+    if (lastNotifyTime[data.address] && parseInt(lastNotifyTime[data.address] / MONITORING_FREQUENCY) == parseInt(currentUnixtime / MONITORING_FREQUENCY)) {
       return;
     }
     logger.trace(

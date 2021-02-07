@@ -3,22 +3,22 @@ const fetchMock = require('fetch-mock');
 jest.mock('fs');
 jest.mock('node-fetch');
 
-const kSuccessUserId = 'successUserId';
-const kFailureUserId = 'failureUserId';
+const kSuccessMachineId = 'successMachineId';
+const kFailureMachineId = 'failureMachineId';
 
-const buildRequest = (userId) => {
+const buildRequest = (machineId) => {
   return {
-    url: new RegExp(`https://brewery-app.com/api/inkbird/notify\?.*userId=${userId}`),
+    url: new RegExp(`https://brewery-app.com/api/inkbird/notify\?.*machineId=${machineId}`),
     method: 'GET',
   };
 }
 
 // Success case.
-const successRequest = buildRequest(kSuccessUserId);
+const successRequest = buildRequest(kSuccessMachineId);
 fetchMock.getOnce(successRequest, 200, { overwriteRoutes: false });
 
 // Failure case. Fails for the first attempt, and retry succeeds.
-const failureRequest = buildRequest(kFailureUserId);
+const failureRequest = buildRequest(kFailureMachineId);
 fetchMock.getOnce(failureRequest, 404, { overwriteRoutes: false });
 fetchMock.getOnce(failureRequest, 200, { overwriteRoutes: false });
 
@@ -35,14 +35,14 @@ describe('Notifier', () => {
   test('SendSuccess', async () => {
     const logger = new Notifier('/tmpdir');
     await logger.init();
-    await logger.notifyInkbirdApi(1, kSuccessUserId, '00:00:00:00:00:00', 20, 60, 90);
+    await logger.notifyInkbirdApi(1, kSuccessMachineId, '00:00:00:00:00:00', 20, 60, 90);
     expect(require('fs').readdirSync('/tmpdir')).toHaveLength(0);
   });
 
   test('Fails', async () => {
     const logger = new Notifier('/tmpdir');
     await logger.init();
-    await logger.notifyInkbirdApi(1, kFailureUserId, '00:00:00:00:00:00', 20, 60, 90);
+    await logger.notifyInkbirdApi(1, kFailureMachineId, '00:00:00:00:00:00', 20, 60, 90);
     // The data is stored on the disk.
     expect(require('fs').readdirSync('/tmpdir')).toHaveLength(1);
 

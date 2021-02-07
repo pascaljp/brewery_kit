@@ -93,3 +93,5 @@ server.start();
 logger.mark('Inkbird monitoring program has started.');
 const device = new IBS_TH1();
 device.subscribeRealtimeData(createCallback(notifier, config.machineId));
+
+

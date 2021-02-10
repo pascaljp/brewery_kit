@@ -1,6 +1,5 @@
 const fs = require('fs');
 const log4js = require('log4js');
-const fetch = require('node-fetch');
 const AsyncLock = require('async-lock');
 const Path = require('path');
 
@@ -8,12 +7,17 @@ const logger = log4js.getLogger();
 
 // A class that sends data to pascal's private server.
 class Notifier {
-  constructor(tmpdir) {
+  constructor(tmpdir, global) {
     this.tempDir_ = tmpdir;
+    this.global_ = global;
     this.filePath_ = Path.join(this.tempDir_, '' + new Date().getTime());
     this.lock_ = new AsyncLock({ timeout: 3000 });
 
     fs.mkdirSync(this.tempDir_, {recursive: true});
+  }
+
+  getFilePath() {
+    return this.filePath_;
   }
 
   // Time consuming, but this task does not block anyting.
@@ -38,32 +42,36 @@ class Notifier {
     }
 
     const paramStr = new URLSearchParams(params);
-    return fetch(`https://brewery-app.com/api/inkbird/notify?${paramStr}`, {
+    return this.global_.fetchContent(`https://brewery-app.com/api/inkbird/notify?${paramStr}`, {
       method: 'GET',
-      timeout: 5 * 1000
-    }).then(response => {
-      if (!response.ok) {
-        throw new Error('Response is not OK');
-      }
-      return response.body;
-    }).catch((e) => {
+      timeout: 5 * 1000,
+    }).catch(e => {
       logger.error('Error in notifyInkbirdApi:', e);
-      this.saveToDisk_({unixtime, machineId, address, temperature, humidity, battery});
+      return this.saveToDisk_({unixtime, machineId, address, temperature, humidity, battery});
     });
   }
 
   async saveToDisk_(data) {
-    await this.lock_.acquire('disk_lock', () => {
-      try {
-        fs.appendFileSync(this.filePath_, JSON.stringify(data) + '\n');
-        logger.warn('Logged to local file.');
-      } catch (err) {
-        logger.error('Failed to append to file:', JSON.stringify(data), err);
-      };
-    }, (err, ret) => {
-      if (err) {
-        logger.error('Failed to acquire lock:', err.message, JSON.stringify(data));
-      }
+    return new Promise((resolve, reject) => {
+      this.lock_.acquire('disk_lock', () => {
+        try {
+          fs.appendFileSync(this.filePath_, JSON.stringify(data) + '\n');
+          logger.warn('Logged to local file.');
+          resolve();
+          return;
+        } catch (err) {
+          logger.error('Failed to append to file:', JSON.stringify(data), err);
+          reject();
+          return;
+        }
+      }, (err, ret) => {
+        if (err) {
+          logger.error('Failed to acquire lock:', err.message, JSON.stringify(data));
+          reject();
+          return;
+        }
+        resolve();
+      });
     });
   }
 

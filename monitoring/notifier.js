@@ -22,7 +22,7 @@ class Notifier {
 
   // Time consuming, but this task does not block anyting.
   async init() {
-    await this.resendWholeData_();
+    return this.resendWholeData_();
   }
 
   async notifyInkbirdApi(unixtime, machineId, address, temperature, humidity, battery, isBackfill) {

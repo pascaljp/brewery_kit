@@ -93,9 +93,8 @@ class Notifier {
           } catch (e) {
           }
           if (data) {
-            const machineId = data.userId || data.machineId;
             await this.notifyInkbirdApi(
-              data.unixtime, machineId, data.address, data.temperature, data.humidity, data.battery, true);
+              data.unixtime, data.machineId, data.address, data.temperature, data.humidity, data.battery, true);
             fs.writeSync(fd, ' '.repeat(entry.length), position);
           }
         }

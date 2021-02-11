@@ -8,6 +8,7 @@ const moment = require('moment-timezone');
 const Notifier = require('./notifier').Notifier;
 const Server = require('./server/main').Server;
 const getConfig = require('./config').getConfig;
+const GLOBAL = require('./global').Global;
 
 const MONITORING_FREQUENCY = 60;  // Once in every 60 seconds.
 
@@ -82,7 +83,7 @@ const createCallback = (notifier, machineId) => {
 const config = getConfig();
 logger.mark(`Machine ID: ${config.machineId}`);
 
-const notifier = new Notifier(config.dataDir);
+const notifier = new Notifier(config.dataDir, GLOBAL);
 notifier.init();
 
 // Server needs to start up after config file is created.

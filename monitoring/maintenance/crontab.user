@@ -1,0 +1,5 @@
+SHELL=/bin/bash
+@reboot docker run -d --rm --privileged --net=host --name brewery-kit-instance --mount type=volume,src=inkbird,dst=/mnt/inkbird pascaljp/inkbird:0.2 bash -c "node brewery_kit/monitoring/inkbird.js"
+
+# Sync to head and restart the server if needed.
+0 * * * * if [[ "\$(docker run --rm --privileged --net=host --mount type=volume,src=inkbird,dst=/mnt/inkbird pascaljp/inkbird:0.2 bash -eu brewery_kit/monitoring/maintenance/update_job.sh | tail -1)" == "Updated" ]]; then echo "Restart"; docker restart brewery-kit-instance; fi

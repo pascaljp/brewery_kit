@@ -74,6 +74,7 @@ describe('Notifier', () => {
     fs.mkdirSync(dirName, {recursive: true});
     fs.writeFileSync(
       path.join(dirName, 'records'),
+      '@@@@@@' + '\n' +
       JSON.stringify({
         "unixtime": 1,
         "machineId": "failureMachineId",
@@ -81,11 +82,12 @@ describe('Notifier', () => {
         "temperature": 20,
         "humidity": 60,
         "battery": 90,
-      }) + '\n' + '@@@@@@' + '\n');
+      }) + '\n');
     const notifier = new Notifier(dirName, GLOBAL);
     await notifier.init();
 
     // All logs are commited on startup.
     expect(fs.readdirSync(dirName)).toHaveLength(0);
+    expect(fetchStub.callCount).toBe(1);
   });
 });

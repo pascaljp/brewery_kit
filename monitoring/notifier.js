@@ -26,7 +26,7 @@ class Notifier {
   }
 
   async notifyInkbirdApi(unixtime, machineId, address, temperature, humidity, battery, isBackfill) {
-    if (!(unixtime && address && temperature && humidity && battery)) {
+    if (unixtime === undefined || address === undefined || temperature === undefined || humidity === undefined || battery === undefined) {
       throw new Error(`Required fields are not set ${unixtime}, ${address}, ${temperature}, ${humidity}, ${battery}`);
     }
     const params = {

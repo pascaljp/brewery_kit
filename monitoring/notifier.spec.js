@@ -67,4 +67,25 @@ describe('Notifier', () => {
     // All logs are commited on startup.
     expect(fs.readdirSync(dirName)).toHaveLength(0);
   });
+
+  test('BackfillFromBrokenFile', async () => {
+    fetchStub.onCall(0).resolves('OK');
+
+    fs.mkdirSync(dirName, {recursive: true});
+    fs.writeFileSync(
+      path.join(dirName, 'records'),
+      JSON.stringify({
+        "unixtime": 1,
+        "machineId": "failureMachineId",
+        "address": "00:00:00:00:00:00",
+        "temperature": 20,
+        "humidity": 60,
+        "battery": 90,
+      }) + '\n' + '@@@@@@' + '\n');
+    const notifier = new Notifier(dirName, GLOBAL);
+    await notifier.init();
+
+    // All logs are commited on startup.
+    expect(fs.readdirSync(dirName)).toHaveLength(0);
+  });
 });

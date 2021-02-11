@@ -87,10 +87,17 @@ class Notifier {
       let position = 0;
       for (const entry of entries) {
         if (/\S/.test(entry)) {
-          const data = JSON.parse(entry);
-          const machineId = data.userId || data.machineId;
-          await this.notifyInkbirdApi(data.unixtime, machineId, data.address, data.temperature, data.humidity, data.battery, true);
-          fs.writeSync(fd, ' '.repeat(entry.length), position);
+          let data = null;
+          try {
+            data = JSON.parse(entry);
+          } catch (e) {
+          }
+          if (data) {
+            const machineId = data.userId || data.machineId;
+            await this.notifyInkbirdApi(
+              data.unixtime, machineId, data.address, data.temperature, data.humidity, data.battery, true);
+            fs.writeSync(fd, ' '.repeat(entry.length), position);
+          }
         }
         position += entry.length + '\n'.length;
       }

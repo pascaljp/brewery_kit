@@ -12,6 +12,7 @@ class Notifier {
     this.global_ = global;
     this.filePath_ = Path.join(this.tempDir_, '' + new Date().getTime());
     this.lock_ = new AsyncLock({ timeout: 3000 });
+    this.resending_ = false;
 
     fs.mkdirSync(this.tempDir_, {recursive: true});
   }
@@ -22,6 +23,7 @@ class Notifier {
 
   // Time consuming, but this task does not block anyting.
   async init() {
+    setInterval(() => {this.resendWholeData_();}, 10 * 60 * 1000);
     return this.resendWholeData_();
   }
 
@@ -76,7 +78,15 @@ class Notifier {
   }
 
   async resendWholeData_() {
+    if (this.resending_) {
+      return;
+    }
+    this.resending_ = true;
     const files = fs.readdirSync(this.tempDir_, {withFileTypes: true});
+
+    // New data will be stored to a new file.
+    this.filePath_ = Path.join(this.tempDir_, '' + new Date().getTime());
+
     for (const file of files) {
       if (!file.isFile()) {
         continue;
@@ -104,6 +114,7 @@ class Notifier {
       fs.unlinkSync(fullPath);
     }
   }
+  this.resending_ = false;
 }
 
 exports.Notifier = Notifier;

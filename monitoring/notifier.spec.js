@@ -7,6 +7,11 @@ const fs = require('fs');
 
 const {Notifier} = require('./notifier');
 
+const urlHasUnixtime = unixtime => {
+  return sinon.match(value => {
+    return value.search(`unixtime=${unixtime}`) != -1;
+  });
+};
 
 describe('Notifier', () => {
   const dirName = '/memfs';
@@ -69,14 +74,14 @@ describe('Notifier', () => {
   });
 
   test('BackfillFromBrokenFile', async () => {
-    fetchStub.onCall(0).resolves('OK');
+    fetchStub.withArgs(urlHasUnixtime(12345), sinon.match.object).onCall(0).resolves('OK');
 
     fs.mkdirSync(dirName, {recursive: true});
     fs.writeFileSync(
       path.join(dirName, 'records'),
       '@@@@@@' + '\n' +
       JSON.stringify({
-        "unixtime": 1,
+        "unixtime": 12345,
         "machineId": "failureMachineId",
         "address": "00:00:00:00:00:00",
         "temperature": 20,

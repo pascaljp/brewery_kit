@@ -1,7 +1,28 @@
 #!/bin/bash -eux
-# How to use:
-# Add this line to crontab.
-#   0 * * * * update_job.sh
+
+# Updates inkbird monitoring program to the latest version, and sets up the
+# environment.
+
+function install_inkbird() {
+    BRANCH=$1
+    echo "Cloning git repository branch=${BRANCH}"
+    cd /mnt/inkbird
+    git clone https://github.com/pascaljp/brewery_kit.git -b ${BRANCH} --depth 1
+}
+
+function update_inkbird() {
+    BRANCH=$1
+    echo "Syncing to branch ${BRANCH}"
+    cd /mnt/inkbird/brewery_kit/monitoring
+    if [[ "$(git fetch origin ${BRANCH} 2>/dev/null && git diff origin/${BRANCH} | wc -l)" == "0" &&
+              -d "node_modules" ]]; then
+        echo No update
+        exit 0
+    fi
+
+    git pull origin ${BRANCH} >/dev/null 2>/dev/null
+    git checkout ${BRANCH} >/dev/null 2>/dev/null
+}
 
 set +u
 if [ ! -v "$USER" ]; then
@@ -14,20 +35,9 @@ sudo chown ${USER}:${USER} -R /mnt/inkbird
 # Update the code. Exit if there is no update.
 BRANCH=$(curl http://brewery-app.com/current_version 2>/dev/null)
 if [ ! -d /mnt/inkbird/brewery_kit/monitoring/maintenance ]; then
-    echo "Cloning git repository branch=${BRANCH}"
-    cd /mnt/inkbird
-    git clone https://github.com/pascaljp/brewery_kit.git -b ${BRANCH} --depth 1
+    install_inkbird ${BRANCH}
 else
-    echo "Syncing to branch ${BRANCH}"
-    cd /mnt/inkbird/brewery_kit/monitoring
-    if [[ "$(git fetch origin ${BRANCH} 2>/dev/null && git diff origin/${BRANCH} | wc -l)" == "0" &&
-              -d "node_modules" ]]; then
-        echo No update
-        exit 0
-    fi
-
-    git pull origin ${BRANCH} >/dev/null 2>/dev/null
-    git checkout ${BRANCH} >/dev/null 2>/dev/null
+    update_inkbird ${BRANCH}
 fi
 
 cd /mnt/inkbird/brewery_kit/monitoring

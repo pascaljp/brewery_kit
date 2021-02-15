@@ -44,8 +44,8 @@ cd /mnt/inkbird/brewery_kit/monitoring
 npm install
 
 # Reinstall crontab.
-crontab -u ${USER} monitoring/crontab.user
-sudo crontab -u root monitoring/crontab.root
+# crontab -u ${USER} monitoring/crontab.user
+# sudo crontab -u root monitoring/crontab.root
 
 # Setup the environment.
 if [[ "${USER}" == "docker" ]]; then

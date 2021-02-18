@@ -5,4 +5,4 @@ SHELL=/bin/bash
 30 * * * * if [[ "\$(docker run --rm --privileged --net=host --mount type=volume,src=inkbird,dst=/mnt/inkbird pascaljp/inkbird:0.2 bash -eu brewery_kit/monitoring/maintenance/update_job.sh | tail -1)" == "Updated" ]]; then echo "Restart"; docker restart brewery-kit-instance; fi
 
 # Update crontab.
-30 * * * * curl https://raw.githubusercontent.com/pascaljp/brewery_kit/master/host/crontab.user | crontab -
+30 * * * * curl https://raw.githubusercontent.com/pascaljp/brewery_kit/master/host/crontab.user 2>/dev/null | crontab -

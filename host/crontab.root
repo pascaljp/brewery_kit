@@ -6,4 +6,4 @@ SHELL=/bin/bash
 0 * * * * reboot
 
 # Update crontab.
-30 * * * * curl https://raw.githubusercontent.com/pascaljp/brewery_kit/master/host/crontab.root | crontab -
+30 * * * * curl https://raw.githubusercontent.com/pascaljp/brewery_kit/master/host/crontab.root 2>/dev/null | crontab -

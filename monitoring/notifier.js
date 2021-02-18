@@ -113,8 +113,8 @@ class Notifier {
       fs.closeSync(fd);
       fs.unlinkSync(fullPath);
     }
+    this.resending_ = false;
   }
-  this.resending_ = false;
 }
 
 exports.Notifier = Notifier;

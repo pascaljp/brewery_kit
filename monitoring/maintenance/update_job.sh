@@ -3,6 +3,11 @@
 # Updates inkbird monitoring program to the latest version, and sets up the
 # environment.
 
+SCRIPT_DIR=$(cd $(dirname $0); pwd)
+VERSION=$(curl http://brewery-app.com/current_version)
+echo "Syncing to version ${VERSION}"
+git checkout ${VERSION}
+
 function install_inkbird() {
     BRANCH=$1
     echo "Cloning git repository branch=${BRANCH}"
@@ -45,9 +50,9 @@ npm install
 
 # Setup the environment.
 if [[ "${USER}" == "docker" ]]; then
-    node maintenance/setup.js --target=docker
+    node ${SCRIPT_DIR}/setup.js --target=docker
 else
-    node maintenance/setup.js --target=native
+    node ${SCRIPT_DIR}/setup.js --target=native
 fi
 
 echo Updated

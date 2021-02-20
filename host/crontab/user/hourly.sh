@@ -26,3 +26,4 @@ fi
 # Update crontab.
 cat ${ROOTDIR}/brewery_kit/master/host/crontab.user 2>/dev/null | crontab -
 notify ${MACHINE_ID} machine-crontab updated
+notify ${MACHINE_ID} user-hourly finished

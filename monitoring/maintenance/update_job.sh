@@ -1,4 +1,4 @@
-#!/bin/bash -eux
+#!/bin/bash -eu
 
 # Updates inkbird monitoring program to the latest version, and sets up the
 # environment.

@@ -14,7 +14,7 @@ function notify() {
 
 function update_inkbird() {
     # Sync to head and restart the server if needed.
-    UPDATE_RESULT=$(docker run --rm --privileged --net=host --mount type=volume,src=inkbird,dst=/mnt/inkbird pascaljp/inkbird:0.2 bash -euc brewery_kit/monitoring/maintenance/update_job.sh | tail -1)
+    UPDATE_RESULT=$(docker run --rm --privileged --net=host --mount type=volume,src=inkbird,dst=/mnt/inkbird pascaljp/inkbird:0.2 bash -c brewery_kit/monitoring/maintenance/update_job.sh | tail -1)
     if [[ "${UPDATE_RESULT}" == "Updated" ]]; then
         echo "Restart"
         notify ${MACHINE_ID} job-restart ongoing

@@ -24,6 +24,6 @@ if [[ "${UPDATE_RESULT}" == "Updated" ]]; then
 fi
 
 # Update crontab.
-cat ${ROOTDIR}/brewery_kit/master/host/crontab.user 2>/dev/null | crontab -
+cat ${ROOTDIR}/brewery_kit/host/crontab.user | crontab -
 notify ${MACHINE_ID} machine-crontab updated
 notify ${MACHINE_ID} user-hourly finished

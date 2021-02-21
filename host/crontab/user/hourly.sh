@@ -12,18 +12,29 @@ function notify() {
     curl -sS "https://brewery-app.com/api/client/log?machineId=${MACHINE_ID}&key=${KEY}&data=${DATA}" >/dev/null
 }
 
+function update_inkbird() {
+    # Sync to head and restart the server if needed.
+    UPDATE_RESULT=$(docker run --rm --privileged --net=host --mount type=volume,src=inkbird,dst=/mnt/inkbird pascaljp/inkbird:0.2 bash -euc brewery_kit/monitoring/maintenance/update_job.sh | tail -1)
+    if [[ "${UPDATE_RESULT}" == "Updated" ]]; then
+        echo "Restart"
+        notify ${MACHINE_ID} job-restart ongoing
+        docker restart brewery-kit-instance
+        notify ${MACHINE_ID} job-restart done
+    fi
+}
+
+function install_crontab() {
+    # Update crontab.
+    cat ${ROOTDIR}/brewery_kit/host/crontab.user | crontab -
+    cat ${ROOTDIR}/brewery_kit/host/crontab.root | sudo crontab -
+}
+
 notify ${MACHINE_ID} user-hourly started
 
-# Sync to head and restart the server if needed.
-UPDATE_RESULT=$(docker run --rm --privileged --net=host --mount type=volume,src=inkbird,dst=/mnt/inkbird pascaljp/inkbird:0.2 bash -euc brewery_kit/monitoring/maintenance/update_job.sh | tail -1)
-if [[ "${UPDATE_RESULT}" == "Updated" ]]; then
-    echo "Restart"
-    notify ${MACHINE_ID} job-restart ongoing
-    docker restart brewery-kit-instance
-    notify ${MACHINE_ID} job-restart done
-fi
+update_inkbird
+install_crontab
 
-# Update crontab.
-cat ${ROOTDIR}/brewery_kit/host/crontab.user | crontab -
 notify ${MACHINE_ID} machine-crontab updated
 notify ${MACHINE_ID} user-hourly finished
+
+sudo /sbin/reboot

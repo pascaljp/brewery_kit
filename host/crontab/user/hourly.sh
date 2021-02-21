@@ -26,7 +26,6 @@ function update_inkbird() {
 function install_crontab() {
     # Update crontab.
     sudo cat ${ROOTDIR}/brewery_kit/host/crontab.user | crontab -
-    sudo cat ${ROOTDIR}/brewery_kit/host/crontab.root | sudo crontab -
 }
 
 notify ${MACHINE_ID} user-hourly started

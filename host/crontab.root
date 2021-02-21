@@ -1,9 +1,0 @@
-SHELL=/bin/bash
-
-# * * * * * /usr/bin/node $(docker volume inspect inkbird | grep Mountpoint | awk '{print $2}' | awk -F'"' '{print $2}')/brewery_kit/host/health_check.js
-
-# Reboot every hour so that network connection is restored.
-0 * * * * /sbin/reboot
-
-# Update crontab.
-30 * * * * curl https://raw.githubusercontent.com/pascaljp/brewery_kit/master/host/crontab.root 2>/dev/null | crontab -

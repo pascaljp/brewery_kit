@@ -9,7 +9,7 @@ function notify() {
     MACHINE_ID=$1
     KEY=$2
     DATA=$3
-    curl "https://brewery-app.com/api/client/log?machineId=${MACHINE_ID}&key=${KEY}&data=${DATA}" >/dev/null
+    curl -sS "https://brewery-app.com/api/client/log?machineId=${MACHINE_ID}&key=${KEY}&data=${DATA}" >/dev/null
 }
 
 notify ${MACHINE_ID} user-hourly started

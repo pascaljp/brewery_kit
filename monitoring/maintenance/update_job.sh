@@ -4,9 +4,6 @@
 # environment.
 
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
-VERSION=$(curl http://brewery-app.com/current_version)
-echo "Syncing to version ${VERSION}"
-git checkout ${VERSION}
 
 function install_inkbird() {
     BRANCH=$1

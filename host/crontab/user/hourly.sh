@@ -14,7 +14,8 @@ function notify() {
 function update_inkbird() {
     # Sync to head and restart the server if needed.
     UPDATE_RESULT=$(docker run --rm --privileged --net=host --mount type=volume,src=inkbird,dst=/mnt/inkbird pascaljp/inkbird:0.2 node brewery_kit/monitoring/maintenance/update_job.js)
-    notify machine-hourly-update-inkbird "${UPDATE_RESULT}"
+    notify machine-hourly-update-inkbird finished
+    # $(echo "${UPDATE_RESULT}" | nkf -WwMQ | sed 's/=$//g' | tr = % | tr -d '\n')
 }
 
 notify machine-hourly started

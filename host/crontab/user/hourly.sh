@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -eu
 
 type jq >/dev/null || sudo apt install -y jq
 
@@ -22,4 +22,4 @@ notify machine-hourly started
 update_inkbird
 notify machine-hourly finished
 
-# sudo /sbin/reboot
+sudo /sbin/reboot

@@ -32,11 +32,10 @@ class Notifier {
     for (const entry of data) {
       if (entry.deviceId === undefined ||
           entry.unixtime === undefined ||
-          entry.address === undefined ||
           entry.temperature === undefined ||
           entry.humidity === undefined ||
           entry.battery === undefined) {
-        throw new Error(`Required fields are not set ${entry.unixtime}, ${entry.address}, ` +
+        throw new Error(`Required fields are not set ${entry.deviceId}, ${entry.unixtime},` +
                         `${entry.temperature}, ${entry.humidity}, ${entry.battery}`);
       }
     }

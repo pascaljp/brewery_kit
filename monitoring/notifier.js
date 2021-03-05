@@ -53,9 +53,11 @@ class Notifier {
       body: JSON.stringify(params),
     }).catch(e => {
       logger.error('Error in notifyInkbirdApi:', e);
+      let promise = Promise.resolve();
       for (const entry of data) {
-        await this.saveToDisk_(entry);
+        promise = promise.then(() => this.saveToDisk_(entry));
       }
+      return promise;
     });
   }
 

@@ -30,6 +30,9 @@ class Notifier {
 
   async notifyInkbirdApi(data, isBackfill) {
     for (const entry of data) {
+      if (!entry.deviceId) {
+        entry.deviceId = entry.address;
+      }
       if (entry.deviceId === undefined ||
           entry.unixtime === undefined ||
           entry.temperature === undefined ||

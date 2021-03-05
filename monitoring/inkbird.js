@@ -71,8 +71,13 @@ const createCallback = (notifier, machineId) => {
     lastNotifyTime[data.address] = currentUnixtime;
 
     try {
-      await notifier.notifyInkbirdApi(
-        currentUnixtime, data.address, data.temperature, data.humidity, data.battery, false);
+      await notifier.notifyInkbirdApi([{
+        deviceId: data.address,
+        unixtime: currentUnixtime,
+        temperature: data.temperature,
+        humidity: data.humidity,
+        battery: data.battery,
+      }], false);
       watchdogId.refresh();
     } catch (e) {
       logger.error('Error in notifier.notifyInkbirdApi:', e);

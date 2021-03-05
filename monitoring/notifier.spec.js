@@ -7,9 +7,10 @@ const fs = require('fs');
 
 const {Notifier} = require('./notifier');
 
-const urlHasUnixtime = unixtime => {
-  return sinon.match(value => {
-    return value.search(`unixtime=${unixtime}`) != -1;
+const paramHasUnixtime = unixtime => {
+  return sinon.match(params => {
+    const body = JSON.parse(params.body);
+    return body['data'][0]['unixtime'] == unixtime;
   });
 };
 
@@ -74,7 +75,7 @@ describe('Notifier', () => {
   });
 
   test('BackfillFromBrokenFile', async () => {
-    fetchStub.withArgs(urlHasUnixtime(12345), sinon.match.object).onCall(0).resolves('OK');
+    fetchStub.withArgs(sinon.match.string, paramHasUnixtime(12345)).onCall(0).resolves('OK');
 
     fs.mkdirSync(dirName, {recursive: true});
     fs.writeFileSync(

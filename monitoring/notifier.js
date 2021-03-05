@@ -32,21 +32,23 @@ class Notifier {
       throw new Error(`Required fields are not set ${unixtime}, ${address}, ${temperature}, ${humidity}, ${battery}`);
     }
     const params = {
-      unixtime: unixtime,
       machineId: machineId,
       deviceId: address,
-      temperature: '' + temperature,
-      humidity: '' + humidity,
-      battery: '' + battery,
+      data: [{
+        unixtime: unixtime,
+        temperature: temperature,
+        humidity: humidity,
+        battery: battery,
+      }],
     };
     if (isBackfill) {
       params['backfill'] = 'true';
     }
 
-    const paramStr = new URLSearchParams(params);
-    return this.global_.fetchContent(`https://brewery-app.com/api/inkbird/notify?${paramStr}`, {
-      method: 'GET',
+    return this.global_.fetchContent('https://brewery-app.com/api/client/saveInkbirdData', {
+      method: 'POST',
       timeout: 5 * 1000,
+      body: JSON.stringify(params),
     }).catch(e => {
       logger.error('Error in notifyInkbirdApi:', e);
       return this.saveToDisk_({unixtime, machineId, address, temperature, humidity, battery});

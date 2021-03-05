@@ -29,8 +29,14 @@ class Notifier {
   }
 
   async notifyInkbirdApi(data, isBackfill) {
-    if (unixtime === undefined || address === undefined || temperature === undefined || humidity === undefined || battery === undefined) {
-      throw new Error(`Required fields are not set ${unixtime}, ${address}, ${temperature}, ${humidity}, ${battery}`);
+    for (const entry of data) {
+      if (entry.unixtime === undefined ||
+          entry.address === undefined ||
+          entry.temperature === undefined ||
+          entry.humidity === undefined ||
+          entry.battery === undefined) {
+        throw new Error(`Required fields are not set ${unixtime}, ${address}, ${temperature}, ${humidity}, ${battery}`);
+      }
     }
     const params = {
       machineId: this.machineId_,
@@ -47,7 +53,9 @@ class Notifier {
       body: JSON.stringify(params),
     }).catch(e => {
       logger.error('Error in notifyInkbirdApi:', e);
-      return this.saveToDisk_({unixtime, address, temperature, humidity, battery});
+      for (const entry of data) {
+        await this.saveToDisk_(entry);
+      }
     });
   }
 

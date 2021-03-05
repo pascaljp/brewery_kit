@@ -72,7 +72,7 @@ const createCallback = (notifier, machineId) => {
 
     try {
       await notifier.notifyInkbirdApi(
-        currentUnixtime, machineId, data.address, data.temperature, data.humidity, data.battery, false);
+        currentUnixtime, data.address, data.temperature, data.humidity, data.battery, false);
       watchdogId.refresh();
     } catch (e) {
       logger.error('Error in notifier.notifyInkbirdApi:', e);
@@ -83,7 +83,7 @@ const createCallback = (notifier, machineId) => {
 const config = getConfig();
 logger.mark(`Machine ID: ${config.machineId}`);
 
-const notifier = new Notifier(config.dataDir, GLOBAL);
+const notifier = new Notifier(config.dataDir, config.machineId, GLOBAL);
 notifier.init();
 
 // Server needs to start up after config file is created.

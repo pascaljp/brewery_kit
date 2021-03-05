@@ -7,8 +7,9 @@ const logger = log4js.getLogger();
 
 // A class that sends data to pascal's private server.
 class Notifier {
-  constructor(tmpdir, global) {
+  constructor(tmpdir, machineId, global) {
     this.tempDir_ = tmpdir;
+    this.machineId_ = machineId;
     this.global_ = global;
     this.filePath_ = Path.join(this.tempDir_, '' + new Date().getTime());
     this.lock_ = new AsyncLock({ timeout: 3000 });
@@ -27,12 +28,12 @@ class Notifier {
     return this.resendWholeData_();
   }
 
-  async notifyInkbirdApi(unixtime, machineId, address, temperature, humidity, battery, isBackfill) {
+  async notifyInkbirdApi(unixtime, address, temperature, humidity, battery, isBackfill) {
     if (unixtime === undefined || address === undefined || temperature === undefined || humidity === undefined || battery === undefined) {
       throw new Error(`Required fields are not set ${unixtime}, ${address}, ${temperature}, ${humidity}, ${battery}`);
     }
     const params = {
-      machineId: machineId,
+      machineId: this,machineId_,
       deviceId: address,
       data: [{
         deviceId: address,
@@ -53,7 +54,7 @@ class Notifier {
       body: JSON.stringify(params),
     }).catch(e => {
       logger.error('Error in notifyInkbirdApi:', e);
-      return this.saveToDisk_({unixtime, machineId, address, temperature, humidity, battery});
+      return this.saveToDisk_({unixtime, address, temperature, humidity, battery});
     });
   }
 
@@ -108,7 +109,7 @@ class Notifier {
           }
           if (data) {
             await this.notifyInkbirdApi(
-              data.unixtime, data.machineId, data.address, data.temperature, data.humidity, data.battery, true);
+              data.unixtime, data.address, data.temperature, data.humidity, data.battery, true);
             fs.writeSync(fd, ' '.repeat(entry.length), position);
           }
         }

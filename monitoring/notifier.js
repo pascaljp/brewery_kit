@@ -48,6 +48,7 @@ class Notifier {
     return this.global_.fetchContent('https://brewery-app.com/api/client/saveInkbirdData', {
       method: 'POST',
       timeout: 5 * 1000,
+      headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(params),
     }).catch(e => {
       logger.error('Error in notifyInkbirdApi:', e);

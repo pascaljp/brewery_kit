@@ -30,12 +30,14 @@ class Notifier {
 
   async notifyInkbirdApi(data, isBackfill) {
     for (const entry of data) {
-      if (entry.unixtime === undefined ||
+      if (entry.deviceId === undefined ||
+          entry.unixtime === undefined ||
           entry.address === undefined ||
           entry.temperature === undefined ||
           entry.humidity === undefined ||
           entry.battery === undefined) {
-        throw new Error(`Required fields are not set ${unixtime}, ${address}, ${temperature}, ${humidity}, ${battery}`);
+        throw new Error(`Required fields are not set ${entry.unixtime}, ${entry.address}, ` +
+                        `${entry.temperature}, ${entry.humidity}, ${entry.battery}`);
       }
     }
     const params = {
@@ -103,6 +105,7 @@ class Notifier {
       const entries = fs.readFileSync(fullPath, {encoding: 'utf8'}).split('\n');
       const fd = fs.openSync(fullPath, 'r+');
       let position = 0;
+      let length = 0;
       const buffer = [];
       for (const entry of entries) {
         if (/\S/.test(entry)) {
@@ -112,16 +115,16 @@ class Notifier {
           } catch (e) {}
           if (buffer.length >= 100) {
             await this.notifyInkbirdApi(buffer, true);
-            fs.writeSync(fd, ' '.repeat(entry.length), position);
+            fs.writeSync(fd, ' '.repeat(length - 1), position);
+            position += length;
+            length = 0;
             buffer.splice(0);
           }
         }
-        position += entry.length + '\n'.length;
+        length += entry.length + '\n'.length;
       }
       if (buffer.length) {
         await this.notifyInkbirdApi(buffer, true);
-        fs.writeSync(fd, ' '.repeat(entry.length), position);
-        buffer.splice(0);
       }
       fs.closeSync(fd);
       fs.unlinkSync(fullPath);

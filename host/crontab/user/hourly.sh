@@ -22,4 +22,6 @@ notify machine-hourly started
 update_inkbird
 notify machine-hourly finished
 
-sudo /sbin/reboot
+if [[ $1 != "noreboot" ]]; then
+    sudo /sbin/reboot
+fi

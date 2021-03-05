@@ -33,7 +33,7 @@ class Notifier {
       throw new Error(`Required fields are not set ${unixtime}, ${address}, ${temperature}, ${humidity}, ${battery}`);
     }
     const params = {
-      machineId: this,machineId_,
+      machineId: this.machineId_,
       deviceId: address,
       data: [{
         deviceId: address,

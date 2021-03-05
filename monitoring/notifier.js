@@ -35,6 +35,7 @@ class Notifier {
       machineId: machineId,
       deviceId: address,
       data: [{
+        deviceId: address,
         unixtime: unixtime,
         temperature: temperature,
         humidity: humidity,

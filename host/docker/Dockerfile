@@ -26,24 +26,7 @@ RUN apt-get update \
 ENV USER=${username}
 USER ${username}
 WORKDIR /home/${username}
-
-# Setup nodejs.
-RUN sudo apt install -y curl npm
-# Install versioned nodejs and delete the npm installed from apt.
-RUN sudo npm install n -g && sudo n stable && sudo apt-get purge -y nodejs npm
-
-# Setup nodejs's noble library.
-RUN sudo apt install -y bluetooth bluez libbluetooth-dev libudev-dev libcap2-bin
-
-# Setup runtime libraries.
-RUN sudo npm install -g pm2 typescript ts-node
-
-# Without this line node cannot read bluetooth data.
-# See https://github.com/abandonware/noble/issues/93
-RUN sudo setcap cap_net_raw+eip $(eval readlink -f `which node`)
-
-
-
 RUN git clone https://github.com/pascaljp/brewery_kit.git
 
 WORKDIR /home/${username}/brewery_kit/monitoring
+RUN ./setup.sh

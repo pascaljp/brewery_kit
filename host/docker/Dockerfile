@@ -18,7 +18,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
   && apt-get install -y tzdata \
-  && apt-get install -y sudo git \
+  && apt-get install -y sudo git curl\
+  && npm install -g typescript ts-node \
   && useradd --create-home --groups sudo ${username} \
   && echo ${username}:password | chpasswd \
   && echo "%${username}    ALL=(ALL)   NOPASSWD:    ALL" >> /etc/sudoers.d/${username}

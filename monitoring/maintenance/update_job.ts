@@ -69,10 +69,9 @@ const InstallLatestInkbird = (rootDir: string) => {
   const userName = GetUserName();
   run(`sudo chown ${userName}:${userName} -R ${rootDir}`);
 
-  // const branch = run('curl http://brewery-app.com/current_version')[
-  //   'stdout'
-  // ].split('\n')[0];
-  const branch = 'master';
+  const branch = run('curl http://brewery-app.com/current_version')[
+    'stdout'
+  ].split('\n')[0];
   AddLog(`git branch: ${branch}`);
   if (!branch) {
     return;

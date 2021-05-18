@@ -12,7 +12,7 @@ const optionDefinitions = [
   {
     name: 'target',
     type: String,
-    defaultValue: ''
+    defaultValue: '',
   },
 ];
 const options = commandLineArgs(optionDefinitions);
@@ -20,13 +20,15 @@ const options = commandLineArgs(optionDefinitions);
 const getDataDir = () => {
   let dir;
   switch (options.target) {
-  case 'docker':
-    return '/mnt/inkbird';
-  case 'native':
-    return `/home/${USER}/.inkbird`;
-  default:
-    console.error('Invalid argument: --target parameter should be one of "docker" or "native"');
-    process.exit(1);
+    case 'docker':
+      return '/mnt/inkbird';
+    case 'native':
+      return `/home/${USER}/.inkbird`;
+    default:
+      console.error(
+        'Invalid argument: --target parameter should be one of "docker" or "native"'
+      );
+      process.exit(1);
   }
 };
 
@@ -41,14 +43,15 @@ const setupConfig = () => {
   let config = {};
   try {
     config = JSON.parse(fs.readFileSync(configPath, 'UTF-8'));
-  } catch (e) {
-  }
+  } catch (e) {}
 
   if (!config.machineId) {
     const S = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    const machineId = 'random-' +
-          Array.from(crypto.randomFillSync(new Uint8Array(16)))
-          .map((n) => S[n % S.length]).join('');
+    const machineId =
+      'random-' +
+      Array.from(crypto.randomFillSync(new Uint8Array(16)))
+        .map((n) => S[n % S.length])
+        .join('');
     config.machineId = machineId;
   }
   config.dataDir = path.join(getDataDir(), 'data');

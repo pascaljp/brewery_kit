@@ -1,112 +1,46 @@
 // Tools this program depends on:
 // - curl
-// - docker (optional)
 // - npm
 // - git
 
-const spawnSync = require('child_process').spawnSync;
-import * as fs from 'fs';
 import * as os from 'os';
-import * as path from 'path';
+import {run, installInkbird, updateInkbird} from './update_job_internal';
 
-const run = (command: string, cwd?: string) => {
-  const c = command.split(' ');
-  const result = spawnSync(c[0], c.slice(1), {cwd: cwd});
-  return {
-    stdout: new TextDecoder().decode(result.stdout),
-    stderr: new TextDecoder().decode(result.stderr),
-  };
-};
+function getUserName() {
+  return os.userInfo().username;
+}
 
-const GetRootDir = () => {
-  if (IsOnDocker()) {
+function isOnDocker() {
+  return getUserName() == 'docker';
+}
+
+function getRootDir() {
+  if (isOnDocker()) {
+    const userName = getUserName();
+    run(`sudo chown ${userName}:${userName} -R /mnt/inkbird`);
     return '/mnt/inkbird';
   } else {
     run('mkdir -p /tmp/inkbird');
     return '/tmp/inkbird';
   }
-};
+}
 
-const GetUserName = () => {
-  return os.userInfo().username;
-};
-
-const IsOnDocker = () => {
-  return GetUserName() == 'docker';
-};
-
-const InstallInkbird = (branch: string, rootDir: string) => {
-  run(
-    `git clone https://github.com/pascaljp/brewery_kit.git -b ${branch} --depth 1`,
-    rootDir
-  );
-  AddLog('git clone: done');
-};
-
-const UpdateInkbird = (branch: string, gitRootDir: string) => {
-  run(`git fetch origin ${branch}`, gitRootDir);
-  const diff = run(`git diff origin/${branch}`, gitRootDir).stdout;
-  if (!diff) {
-    AddLog('git: no diff');
-    return false;
-  }
-  run(`git pull origin ${branch}`, gitRootDir);
-  run(`git checkout ${branch}`, gitRootDir);
-  AddLog('git pull: done');
-  return true;
-};
-
-const RestartJob = () => {
-  if (IsOnDocker()) {
-    run('docker restart brewery-kit-instance');
-    AddLog('restart job: done');
-    return;
-  }
-  AddLog('restart job: not executed');
-};
-
-const InstallLatestInkbird = (rootDir: string) => {
-  const userName = GetUserName();
-  run(`sudo chown ${userName}:${userName} -R ${rootDir}`);
-
-  const branch = run('curl http://brewery-app.com/current_version')[
-    'stdout'
-  ].split('\n')[0];
-  AddLog(`git branch: ${branch}`);
-  if (!branch) {
-    return;
-  }
-
-  const monitoringDir = path.join(rootDir, 'brewery_kit', 'monitoring');
+function installLatestInkbird(branch: string, rootDir: string): void {
   try {
-    fs.accessSync(monitoringDir);
-    const updated = UpdateInkbird(branch, monitoringDir);
-    if (!updated) {
-      return;
-    }
+    updateInkbird(branch, rootDir);
   } catch (e) {
-    InstallInkbird(branch, rootDir);
+    installInkbird(branch, rootDir);
   }
-  run('npm install', monitoringDir);
-  AddLog('npm install: done');
-  RestartJob();
-};
-
-const AddLog = (message: string) => {
-  console.log(message);
 };
 
 function main() {
   try {
-    const rootDir = GetRootDir();
-    InstallLatestInkbird(rootDir);
-
-    const setupScript = path.join(
-      rootDir,
-      'brewery_kit/monitoring/maintenance/setup.js'
-    );
-    const target = IsOnDocker() ? 'docker' : 'native';
-    run(`node ${setupScript} ${target}`);
+    const rootDir = getRootDir();
+    const branch = run('curl -sS http://brewery-app.com/current_version').split('\n')[0];
+    if (!branch) {
+      return;
+    }
+    installLatestInkbird(branch, rootDir);
   } catch (e) {
     console.error(e);
   }

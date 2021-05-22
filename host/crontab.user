@@ -1,4 +1,0 @@
-SHELL=/bin/bash
-@reboot docker run -d --rm --privileged --net=host --name brewery-kit-instance --mount type=volume,src=inkbird,dst=/mnt/inkbird pascaljp/inkbird:0.2 bash -c "node brewery_kit/monitoring/inkbird.js"
-
-0 * * * * sudo bash -eu $(docker volume inspect inkbird | grep Mountpoint | awk '{print $2}' | awk -F'"' '{print $2}')/brewery_kit/host/crontab/user/hourly.sh

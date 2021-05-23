@@ -13,7 +13,6 @@ import os from 'os';
 import * as net from 'net';
 
 import * as InkbirdConfig from '../shared/config';
-import {Admin} from './admin';
 
 const logger = Log4js.getLogger();
 
@@ -29,8 +28,6 @@ class Server {
 
     this.app_.get('/', (_req: any, res: { send: (arg0: string) => void; }) => { res.send('OK'); });
     this.app_.get('/getMachineId', this.getMachineId_.bind(this));
-
-    new Admin();
   }
 
   start(): void {

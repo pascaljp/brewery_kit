@@ -51,8 +51,7 @@ class Notifier {
         entry.temperature === undefined ||
         entry.humidity === undefined ||
         entry.battery === undefined) {
-        throw new Error(`Required fields are not set ${entry.deviceId}, ${entry.unixtime},` +
-          `${entry.temperature}, ${entry.humidity}, ${entry.battery}`);
+        throw new Error(`Required fields are not set: ${JSON.stringify(entry)}`);
       }
     }
     const params: {machineId: string, data: InkbirdData[], backfill: boolean} = {

@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 
 class Global {
-  constructor() { }
+  constructor() {}
 
   static async fetchContent(url: string, init?: any): Promise<string> {
     const response = await fetch(url, init);
@@ -12,4 +12,4 @@ class Global {
   }
 }
 
-export { Global };
+export {Global};

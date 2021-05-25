@@ -6,7 +6,7 @@ import moment from 'moment-timezone';
 
 import {Notifier} from './notifier';
 import {Server} from './server/main';
-import * as InkbirdConfig from './shared/config';
+import * as InkbirdConfig from './server/config';
 import {Global} from './global';
 
 const MONITORING_FREQUENCY: number = 60; // Once in every 60 seconds.

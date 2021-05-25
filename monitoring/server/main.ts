@@ -12,7 +12,7 @@ import Log4js from 'log4js';
 import os from 'os';
 import * as net from 'net';
 
-import * as InkbirdConfig from '../shared/config';
+import * as InkbirdConfig from './config';
 
 const logger = Log4js.getLogger();
 

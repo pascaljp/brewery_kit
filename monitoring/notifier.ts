@@ -8,7 +8,6 @@ const logger: Log4js.Logger = Log4js.getLogger();
 
 interface InkbirdData {
   deviceId: string;
-  address?: string;
   unixtime: number;
   temperature: number;
   humidity: number;
@@ -53,9 +52,6 @@ class Notifier {
     isBackfill: boolean
   ): Promise<string | void> {
     for (const entry of data) {
-      if (!entry.deviceId && entry.address) {
-        entry.deviceId = entry.address;
-      }
       if (
         entry.deviceId === undefined ||
         entry.unixtime === undefined ||

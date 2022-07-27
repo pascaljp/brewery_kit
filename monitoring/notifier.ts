@@ -103,7 +103,7 @@ class Notifier {
     } catch (err) {
       logger.error(
         'Failed to acquire lock:',
-        err.message,
+        err,
         JSON.stringify(data)
       );
       throw new Error('Failed to acquire lock');

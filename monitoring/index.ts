@@ -8,6 +8,8 @@ import {Notifier} from './notifier';
 import {Server} from './server/main';
 import * as InkbirdConfig from './server/config';
 import {Global} from './global';
+import * as os from 'os';
+import * as path from 'path';
 
 const MONITORING_FREQUENCY: number = 60; // Once in every 60 seconds.
 
@@ -30,7 +32,7 @@ Log4js.configure({
     out: {type: 'stdout', layout: {type: 'with_filename'}},
     err: {
       type: 'file',
-      filename: 'error.log',
+      filename: path.join(os.homedir(), '.inkbird', 'error.log'),
       pattern: '-yyyyMMdd',
       backups: 366,
       layout: {type: 'with_filename'},

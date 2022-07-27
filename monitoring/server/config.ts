@@ -21,7 +21,7 @@ const createMachineId: () => string = () => {
 };
 
 const createDataDir: () => string = () => {
-  const dataDir = path.join(os.homedir(), '.inkbird', 'data');
+  const dataDir: string = path.join(os.homedir(), '.inkbird', 'data');
   try {
     fs.mkdirSync(dataDir, {recursive: true});
   } catch {}

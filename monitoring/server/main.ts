@@ -8,8 +8,8 @@
 import express from 'express';
 import fetch from 'node-fetch';
 import * as http from 'http';
-import Log4js from 'log4js';
-import os from 'os';
+import * as Log4js from 'log4js';
+import * as os from 'os';
 import * as net from 'net';
 
 import * as InkbirdConfig from './config';

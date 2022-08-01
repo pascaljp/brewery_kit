@@ -8,11 +8,12 @@
     "@abandonware/bluetooth-hci-socket": "^0.5.3-8",
     "@firebase/app": "^0.6.22",
     "@firebase/database": "^0.10.1",
+    "@pascaljp/brewery-kit-api": "^1.0.2",
     "async-lock": "^1.2.8",
     "await-semaphore": "^0.1.3",
     "command-line-args": "^5.1.1",
     "express": "^4.17.1",
-    "ibs_th1": "^1.1.0",
+    "ibs_th1": "^1.2.2",
     "log4js": "^6.5.2",
     "moment-timezone": "^0.5.32",
     "node-fetch": "^2.6.7"

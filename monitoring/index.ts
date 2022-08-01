@@ -1,73 +1,26 @@
 'use strict';
-const IBS_TH1 = require('ibs_th1');
-// import execSync from 'child_process';
-import Log4js from 'log4js';
+
+import {IBS_TH1, RealtimeData} from 'ibs_th1';
+import {logger} from './setup_log4js';
 import moment from 'moment-timezone';
 
-import {Notifier} from './notifier';
+import {Watchdog} from './watchdog';
 import {Server} from './server/main';
 import * as InkbirdConfig from './server/config';
-import {Global} from './global';
-import * as os from 'os';
-import * as path from 'path';
+import {BreweryKitApi} from '@pascaljp/brewery-kit-api';
 
 const MONITORING_FREQUENCY: number = 60; // Once in every 60 seconds.
 
-Log4js.addLayout('with_filename', (/*config*/) => {
-  return (logEvent: any /*Log4js.LoggingEvent*/) => {
-    const level: string = logEvent.level.levelStr[0];
-    const time: string = moment(logEvent.startTime)
-      .tz('Asia/Tokyo')
-      .format('YYYYMMDD HHmmss.SSS');
-    const path: string = logEvent.fileName;
-    const file: string = path.substr(
-      path.indexOf('brewery_kit') + 'brewery_kit/'.length
-    );
-    return `${level}${time}] ${file} ${logEvent.data}`;
-  };
-});
-
-Log4js.configure({
-  appenders: {
-    out: {type: 'stdout', layout: {type: 'with_filename'}},
-    err: {
-      type: 'file',
-      filename: path.join(os.homedir(), '.inkbird', 'error.log'),
-      pattern: '-yyyyMMdd',
-      backups: 366,
-      layout: {type: 'with_filename'},
-    },
-  },
-  categories: {
-    default: {appenders: ['out'], level: 'all', enableCallStack: true},
-    ibs_th1: {appenders: ['out', 'err'], level: 'warn', enableCallStack: true},
-  },
-});
-const logger: Log4js.Logger = Log4js.getLogger();
-
 class Inkbird {
   static run() {
-    // Reboot the machine if there is no data in the past 5 minutes.
-    const watchdogId: NodeJS.Timer = setTimeout(() => {
-      logger.error('Seems like inkbird process is not working properly.');
-      logger.error('Rebooting the machine...');
-      try {
-        // const stdout = execSync('/sbin/reboot');
-        // logger.mark('Reboot command succeeded... Rebooting...');
-        // logger.mark(stdout);
-        process.exit(1);
-      } catch (e) {
-        logger.error('Failed to reboot the machine.');
-        logger.error(e);
-      }
-    }, 300 * 1000);
-    // The watchdog does not prevent the program to terminate.
-    watchdogId.unref();
+    // Exit the program if watchdog.refresh() is not called for 5 minutes.
+    const watchdog: Watchdog = new Watchdog(/*seconds=*/ 300);
+    watchdog.run();
 
     // device ID to unixtime.
     const lastNotifyTimes: Map<string, number> = new Map<string, number>();
-    function createCallback(notifier: Notifier): (data: any) => Promise<void> {
-      return async (data: any) => {
+    function createCallback(api: BreweryKitApi/* notifier: Notifier*/): (data: RealtimeData) => Promise<void> {
+      return async (data: RealtimeData): Promise<void> => {
         const currentUnixtime: number = moment().unix();
         const lastNotifyTime = lastNotifyTimes.get(data.address);
         if (
@@ -87,7 +40,7 @@ class Inkbird {
         lastNotifyTimes.set(data.address, currentUnixtime);
 
         try {
-          await notifier.notifyInkbirdApi(
+          await api.saveInkbirdData(
             [
               {
                 deviceId: data.address,
@@ -95,12 +48,11 @@ class Inkbird {
                 temperature: data.temperature,
                 humidity: data.humidity,
                 battery: data.battery,
-                probeType: data.probeType,
               },
             ],
             false
           );
-          watchdogId.refresh();
+          watchdog.refresh();
         } catch (e) {
           logger.error('Error in notifier.notifyInkbirdApi:', e);
         }
@@ -110,12 +62,8 @@ class Inkbird {
     const config: InkbirdConfig.ConfigType = InkbirdConfig.getConfig();
     logger.mark(`Machine ID: ${config.machineId}`);
 
-    const notifier: Notifier = new Notifier(
-      config.dataDir,
-      config.machineId,
-      Global
-    );
-    notifier.init();
+    const api: BreweryKitApi = new BreweryKitApi(config.dataDir, config.machineId);
+    api.startBackgroundTask(() => { logger.info('Saved') });
 
     // Server needs to start up after config file is created.
     const server: Server = new Server();
@@ -124,7 +72,7 @@ class Inkbird {
     // Subscribe inkbird signals.
     logger.mark('Inkbird monitoring program has started.');
     const device = new IBS_TH1();
-    device.subscribeRealtimeData(createCallback(notifier));
+    device.subscribeRealtimeData(createCallback(api/*notifier*/));
   }
 }
 

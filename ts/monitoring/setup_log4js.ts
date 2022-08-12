@@ -1,14 +1,12 @@
 import * as os from 'os';
 import * as path from 'path';
 import * as Log4js from 'log4js';
-import moment from 'moment-timezone';
+import {DateTime} from 'luxon';
 
 Log4js.addLayout('with_filename', (/*config*/) => {
   return (logEvent: Log4js.LoggingEvent) => {
     const level: string = logEvent.level.levelStr[0] || '?';
-    const time: string = moment(logEvent.startTime)
-      .tz('Asia/Tokyo')
-      .format('YYYYMMDD HHmmss.SSS');
+    const time: string = DateTime.fromJSDate(logEvent.startTime).setZone('Asia/Tokyo').toFormat('yyyyMMdd HHmmss.SSS');
     const path: string = logEvent.fileName || 'unknown';
     const file: string = path.substr(
       path.indexOf('brewery_kit') + 'brewery_kit/'.length

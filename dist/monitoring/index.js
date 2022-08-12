@@ -58,17 +58,14 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 var ibs_th1_1 = require("ibs_th1");
-var setup_log4js_1 = require("./setup_log4js");
-var moment_timezone_1 = __importDefault(require("moment-timezone"));
-var watchdog_1 = require("./watchdog");
-var main_1 = require("./server/main");
-var InkbirdConfig = __importStar(require("./server/config"));
+var luxon_1 = require("luxon");
 var brewery_kit_api_1 = require("@pascaljp/brewery-kit-api");
+var setup_log4js_1 = require("monitoring/setup_log4js");
+var watchdog_1 = require("monitoring/watchdog");
+var main_1 = require("monitoring/server/main");
+var InkbirdConfig = __importStar(require("monitoring/server/config"));
 var MONITORING_FREQUENCY = 60; // Once in every 60 seconds.
 var Inkbird = /** @class */ (function () {
     function Inkbird() {
@@ -86,7 +83,7 @@ var Inkbird = /** @class */ (function () {
                 return __generator(this, function (_a) {
                     switch (_a.label) {
                         case 0:
-                            currentUnixtime = (0, moment_timezone_1.default)().unix();
+                            currentUnixtime = Math.floor(luxon_1.DateTime.now().toSeconds());
                             lastNotifyTime = lastNotifyTimes.get(data.address);
                             if (lastNotifyTime &&
                                 Math.floor(lastNotifyTime / MONITORING_FREQUENCY) ==

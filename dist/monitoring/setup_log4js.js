@@ -22,21 +22,16 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.logger = void 0;
 var os = __importStar(require("os"));
 var path = __importStar(require("path"));
 var Log4js = __importStar(require("log4js"));
-var moment_timezone_1 = __importDefault(require("moment-timezone"));
+var luxon_1 = require("luxon");
 Log4js.addLayout('with_filename', function ( /*config*/) {
     return function (logEvent) {
         var level = logEvent.level.levelStr[0] || '?';
-        var time = (0, moment_timezone_1.default)(logEvent.startTime)
-            .tz('Asia/Tokyo')
-            .format('YYYYMMDD HHmmss.SSS');
+        var time = luxon_1.DateTime.fromJSDate(logEvent.startTime).setZone('Asia/Tokyo').toFormat('yyyyMMdd HHmmss.SSS');
         var path = logEvent.fileName || 'unknown';
         var file = path.substr(path.indexOf('brewery_kit') + 'brewery_kit/'.length);
         return "".concat(level).concat(time, "] ").concat(file, " ").concat(logEvent.data);

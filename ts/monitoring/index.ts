@@ -1,13 +1,13 @@
 'use strict';
 
 import {IBS_TH1, RealtimeData} from 'ibs_th1';
-import {logger} from './setup_log4js';
-import moment from 'moment-timezone';
-
-import {Watchdog} from './watchdog';
-import {Server} from './server/main';
-import * as InkbirdConfig from './server/config';
+import {DateTime} from 'luxon';
 import {BreweryKitApi} from '@pascaljp/brewery-kit-api';
+
+import {logger} from 'monitoring/setup_log4js';
+import {Watchdog} from 'monitoring/watchdog';
+import {Server} from 'monitoring/server/main';
+import * as InkbirdConfig from 'monitoring/server/config';
 
 const MONITORING_FREQUENCY: number = 60; // Once in every 60 seconds.
 
@@ -21,7 +21,7 @@ class Inkbird {
     const lastNotifyTimes: Map<string, number> = new Map<string, number>();
     function createCallback(api: BreweryKitApi/* notifier: Notifier*/): (data: RealtimeData) => Promise<void> {
       return async (data: RealtimeData): Promise<void> => {
-        const currentUnixtime: number = moment().unix();
+        const currentUnixtime: number = Math.floor(DateTime.now().toSeconds());
         const lastNotifyTime = lastNotifyTimes.get(data.address);
         if (
           lastNotifyTime &&
